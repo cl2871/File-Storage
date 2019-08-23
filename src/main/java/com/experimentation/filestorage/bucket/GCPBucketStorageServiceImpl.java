@@ -28,13 +28,20 @@ public class GCPBucketStorageServiceImpl implements BucketStorageService {
     }
 
     @Override
-    public void uploadMultipartFile(String bucketName, String fileName, MultipartFile file)
+    public FileStorageDTO getFile(String bucketName, String fileName) {
+        logger.info("Bucket Name: " + bucketName + " File Name:" + fileName);
+        Blob blob = storage.get(gcpBucketStorageUtil.createBlobId(bucketName, fileName));
+        return fileStorageUtil.createFileStorageDTO(fileName, blob.getContentType(), blob.getContent());
+    }
+
+    @Override
+    public void uploadMultipartFile(String bucketName, String fileName, MultipartFile multipartFile)
             throws FileStorageServiceException {
         BlobId blobId = gcpBucketStorageUtil.createBlobId(bucketName, fileName);
-        BlobInfo blobInfo = gcpBucketStorageUtil.createBlobInfo(blobId, file.getContentType());
+        BlobInfo blobInfo = gcpBucketStorageUtil.createBlobInfo(blobId, multipartFile.getContentType());
 
         try {
-            storage.create(blobInfo, file.getBytes());
+            storage.create(blobInfo, multipartFile.getBytes());
         } catch(IOException e) {
             logger.error(e.getMessage());
             throw new FileStorageServiceException("Issue reading file to upload");
@@ -49,12 +56,5 @@ public class GCPBucketStorageServiceImpl implements BucketStorageService {
         if (!deleted) {
             throw new FileStorageServiceException("Unable to delete file: " + fileName);
         }
-    }
-
-    @Override
-    public FileStorageDTO getFile(String bucketName, String fileName) {
-        logger.info("Bucket Name: " + bucketName + " File Name:" + fileName);
-        Blob blob = storage.get(gcpBucketStorageUtil.createBlobId(bucketName, fileName));
-        return fileStorageUtil.createFileStorageDTO(fileName, blob.getContentType(), blob.getContent());
     }
 }

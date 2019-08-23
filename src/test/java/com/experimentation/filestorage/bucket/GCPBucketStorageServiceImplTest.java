@@ -2,6 +2,7 @@ package com.experimentation.filestorage.bucket;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,6 +38,9 @@ public class GCPBucketStorageServiceImplTest {
     @MockBean
     private Blob blob;
 
+    @MockBean
+    private MultipartFile multipartFile;
+
     // Final classes
     private String bucketName;
     private String fileName;
@@ -43,6 +50,7 @@ public class GCPBucketStorageServiceImplTest {
 
     // Other fields to initialize
     private FileStorageDTO fileStorageDTO;
+    private BlobInfo blobInfo;
 
     @Before
     public void setUp() throws Exception {
@@ -53,14 +61,7 @@ public class GCPBucketStorageServiceImplTest {
         content = "Example text".getBytes();
 
         fileStorageDTO = new FileStorageDTO(fileName, contentType, content);
-    }
-
-    @Test
-    public void uploadMultipartFile() {
-    }
-
-    @Test
-    public void deleteFile() {
+        blobInfo = gcpBucketStorageUtil.createBlobInfo(blobId, contentType);
     }
 
     @Test
@@ -85,5 +86,27 @@ public class GCPBucketStorageServiceImplTest {
         assertThat(fileStorageDTO.getFileName()).isEqualTo(fileName);
         assertThat(fileStorageDTO.getContentType()).isEqualTo(contentType);
         assertThat(fileStorageDTO.getData()).isEqualTo(content);
+    }
+
+    @Test
+    public void uploadMultipartFile_shouldCompleteUpload_whenCalledWithBucketNameAndFileNameAndMultipartFile()
+            throws IOException {
+
+        Mockito.doReturn(blobId)
+                .when(gcpBucketStorageUtil).createBlobId(bucketName, fileName);
+        Mockito.doReturn(contentType)
+                .when(multipartFile).getContentType();
+        Mockito.doReturn(blobInfo)
+                .when(gcpBucketStorageUtil).createBlobInfo(blobId, contentType);
+        Mockito.doReturn(content)
+                .when(multipartFile).getBytes();
+        Mockito.doReturn(blob)
+                .when(storage).create(blobInfo, content);
+
+        gcpBucketStorageService.uploadMultipartFile(bucketName, fileName, multipartFile);
+    }
+
+    @Test
+    public void deleteFile() {
     }
 }
