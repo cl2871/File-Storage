@@ -3,6 +3,7 @@ package com.experimentation.filestorage.bucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,22 +16,23 @@ import java.io.IOException;
 @RequestMapping("/api/fileStorage")
 public class GCPBucketStorageController {
 
+    private String bucketName;
     private static final Logger logger = LoggerFactory.getLogger(GCPBucketStorageController.class);
 
     private GCPBucketStorageServiceImpl gcpBucketStorageService;
 
     @Autowired
-    public GCPBucketStorageController(GCPBucketStorageServiceImpl gcpBucketStorageService) {
+    public GCPBucketStorageController(@Value("${app.gcp.bucket}") String bucketName, GCPBucketStorageServiceImpl gcpBucketStorageService) {
+        this.bucketName = bucketName;
         this.gcpBucketStorageService = gcpBucketStorageService;
     }
 
     @GetMapping("/{fileName}")
     public ResponseEntity<?> getFile(@PathVariable String fileName) throws IOException {
 
-        ResponseEntity responseEntity = null;
-
+        ResponseEntity responseEntity;
         try {
-            FileStorageDTO fileStorageDTO = gcpBucketStorageService.getFile("", fileName);
+            FileStorageDTO fileStorageDTO = gcpBucketStorageService.getFile(bucketName, fileName);
 
             // Setup response to have the object/file as an attachment
             responseEntity = ResponseEntity.ok()
@@ -41,40 +43,35 @@ public class GCPBucketStorageController {
         } catch (FileStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
-        } finally {
-            return responseEntity;
         }
+        return responseEntity;
     }
 
     @PostMapping("")
     public ResponseEntity<?> uploadFile(@RequestPart(value = "file") MultipartFile multipartFile) {
 
-        ResponseEntity responseEntity = null;
-
+        ResponseEntity responseEntity;
         try {
-            gcpBucketStorageService.uploadMultipartFile("", multipartFile.getOriginalFilename(), multipartFile);
+            gcpBucketStorageService.uploadMultipartFile(bucketName, multipartFile.getOriginalFilename(), multipartFile);
             responseEntity = ResponseEntity.ok().build();
         } catch (FileStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
-        } finally {
-            return responseEntity;
         }
+        return responseEntity;
     }
 
     @DeleteMapping("/{fileName}")
     public ResponseEntity<?> deleteFile(@PathVariable String fileName) throws Exception {
 
-        ResponseEntity responseEntity = null;
-
+        ResponseEntity responseEntity;
         try {
-            gcpBucketStorageService.deleteFile("", fileName);
+            gcpBucketStorageService.deleteFile(bucketName, fileName);
             responseEntity = ResponseEntity.ok().build();
         } catch (FileStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
-        } finally {
-            return responseEntity;
         }
+        return responseEntity;
     }
 }
