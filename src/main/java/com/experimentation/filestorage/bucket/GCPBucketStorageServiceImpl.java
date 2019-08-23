@@ -7,27 +7,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
 @Service
 public class GCPBucketStorageServiceImpl implements BucketStorageService {
 
     private Storage storage;
+    private GCPBucketStorageUtil gcpBucketStorageUtil;
+    private FileStorageUtil fileStorageUtil;
 
     private static final Logger logger = LoggerFactory.getLogger(GCPBucketStorageServiceImpl.class);
 
     @Autowired
-    public GCPBucketStorageServiceImpl(Storage storage) {
+    public GCPBucketStorageServiceImpl(Storage storage,
+                                       GCPBucketStorageUtil gcpBucketStorageUtil,
+                                       FileStorageUtil fileStorageUtil) {
         this.storage = storage;
+        this.gcpBucketStorageUtil = gcpBucketStorageUtil;
+        this.fileStorageUtil = fileStorageUtil;
     }
 
     @Override
     public void uploadMultipartFile(String bucketName, String fileName, MultipartFile file)
             throws FileStorageServiceException {
-        BlobId blobId = BlobId.of(bucketName, fileName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(file.getContentType()).build();
+        BlobId blobId = gcpBucketStorageUtil.createBlobId(bucketName, fileName);
+        BlobInfo blobInfo = gcpBucketStorageUtil.createBlobInfo(blobId, file.getContentType());
 
         try {
             storage.create(blobInfo, file.getBytes());
@@ -38,24 +42,9 @@ public class GCPBucketStorageServiceImpl implements BucketStorageService {
     }
 
     @Override
-    public void uploadFile(String bucketName, String fileName, File file, String contentType)
-            throws FileStorageServiceException {
-        logger.info("Bucket Name: " + bucketName + " File Name:" + fileName);
-        BlobId blobId = BlobId.of(bucketName, fileName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(contentType).build();
-
-        try {
-            storage.create(blobInfo, Files.readAllBytes(file.toPath()));
-        } catch(IOException e) {
-            logger.error(e.getMessage());
-            throw new FileStorageServiceException("Issue reading file to upload");
-        }
-    }
-
-    @Override
     public void deleteFile(String bucketName, String fileName) throws FileStorageServiceException {
         logger.info("Bucket Name: " + bucketName + " File Name:" + fileName);
-        BlobId blobId = BlobId.of(bucketName, fileName);
+        BlobId blobId = gcpBucketStorageUtil.createBlobId(bucketName, fileName);
         boolean deleted = storage.delete(blobId);
         if (!deleted) {
             throw new FileStorageServiceException("Unable to delete file: " + fileName);
@@ -65,7 +54,7 @@ public class GCPBucketStorageServiceImpl implements BucketStorageService {
     @Override
     public FileStorageDTO getFile(String bucketName, String fileName) {
         logger.info("Bucket Name: " + bucketName + " File Name:" + fileName);
-        Blob blob = storage.get(BlobId.of(bucketName, fileName));
-        return new FileStorageDTO(fileName, blob.getContentType(), blob.getContent());
+        Blob blob = storage.get(gcpBucketStorageUtil.createBlobId(bucketName, fileName));
+        return fileStorageUtil.createFileStorageDTO(fileName, blob.getContentType(), blob.getContent());
     }
 }
