@@ -10,29 +10,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @RestController
-@RequestMapping("/api/fileStorage/gcp")
-public class GCPBucketStorageController {
+@RequestMapping("/api/fileStorage/aws")
+public class AWSBucketStorageController {
 
     private String bucketName;
-    private GCPBucketStorageServiceImpl gcpBucketStorageService;
+    private AWSBucketStorageServiceImpl awsBucketStorageService;
 
     private static final Logger logger = LoggerFactory.getLogger(GCPBucketStorageController.class);
 
     @Autowired
-    public GCPBucketStorageController(@Value("${app.gcp.bucket}") String bucketName, GCPBucketStorageServiceImpl gcpBucketStorageService) {
+    public AWSBucketStorageController(@Value("${app.aws.bucket}") String bucketName, AWSBucketStorageServiceImpl awsBucketStorageService) {
         this.bucketName = bucketName;
-        this.gcpBucketStorageService = gcpBucketStorageService;
+        this.awsBucketStorageService = awsBucketStorageService;
     }
 
     @GetMapping("/{fileName}")
-    public ResponseEntity<?> getFile(@PathVariable String fileName) throws IOException {
+    public ResponseEntity<?> getFile(@PathVariable String fileName) {
 
         ResponseEntity responseEntity;
         try {
-            FileStorageDTO fileStorageDTO = gcpBucketStorageService.getFile(bucketName, fileName);
+            FileStorageDTO fileStorageDTO = awsBucketStorageService.getFile(bucketName, fileName);
 
             // Setup response to have the object/file as an attachment
             responseEntity = ResponseEntity.ok()
@@ -52,7 +50,7 @@ public class GCPBucketStorageController {
 
         ResponseEntity responseEntity;
         try {
-            gcpBucketStorageService.uploadMultipartFile(bucketName, multipartFile.getOriginalFilename(), multipartFile);
+            awsBucketStorageService.uploadMultipartFile(bucketName, multipartFile.getOriginalFilename(), multipartFile);
             responseEntity = ResponseEntity.ok().build();
         } catch (FileStorageServiceException e) {
             logger.error(e.getMessage());
@@ -62,11 +60,11 @@ public class GCPBucketStorageController {
     }
 
     @DeleteMapping("/{fileName}")
-    public ResponseEntity<?> deleteFile(@PathVariable String fileName) throws Exception {
+    public ResponseEntity<?> deleteFile(@PathVariable String fileName) {
 
         ResponseEntity responseEntity;
         try {
-            gcpBucketStorageService.deleteFile(bucketName, fileName);
+            awsBucketStorageService.deleteFile(bucketName, fileName);
             responseEntity = ResponseEntity.ok().build();
         } catch (FileStorageServiceException e) {
             logger.error(e.getMessage());
