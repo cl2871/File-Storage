@@ -26,11 +26,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {AWSBucketStorageServiceImpl.class})
-public class AWSBucketStorageServiceImplTest {
+@ContextConfiguration(classes = {AWSBucketStorageImpl.class})
+public class AWSBucketStorageImplTest {
 
     @Autowired
-    private AWSBucketStorageServiceImpl awsBucketStorageService;
+    private AWSBucketStorageImpl awsBucketStorageService;
 
     @MockBean
     private AmazonS3 amazonS3;

@@ -1,22 +1,22 @@
 package com.experimentation.filestorage.config;
 
-import com.experimentation.filestorage.parser.ParserFactory;
+import com.experimentation.filestorage.bucket.BucketStorageFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ParserConfig {
+public class BucketStorageConfig {
 
     /**
-     * Configure the ServiceLocatorFactoryBean to utilize the ParserFactory as the service locator interface
+     * Configure the ServiceLocatorFactoryBean to utilize the BucketStorageFactory as the service locator interface
      * @return
      */
-    @Bean(name = "parserFactory")
+    @Bean(name = "bucketStorageFactory")
     public FactoryBean serviceLocatorFactoryBean() {
         ServiceLocatorFactoryBean factoryBean = new ServiceLocatorFactoryBean();
-        factoryBean.setServiceLocatorInterface(ParserFactory.class);
+        factoryBean.setServiceLocatorInterface(BucketStorageFactory.class);
         return factoryBean;
     }
 }
