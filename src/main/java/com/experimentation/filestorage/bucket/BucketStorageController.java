@@ -58,34 +58,63 @@ public class BucketStorageController {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body("Invalid storage provider identifier provided.");
         }
+
         return responseEntity;
     }
 
-//    @PostMapping("")
-//    public ResponseEntity<?> uploadFile(@RequestPart(value = "file") MultipartFile multipartFile) {
-//
-//        ResponseEntity responseEntity;
-//        try {
-//            bucketStorageService.uploadMultipartFile(bucketName, multipartFile.getOriginalFilename(), multipartFile);
-//            responseEntity = ResponseEntity.ok().build();
-//        } catch (FileStorageServiceException e) {
-//            logger.error(e.getMessage());
-//            responseEntity = ResponseEntity.status(500).body(e.getMessage());
-//        }
-//        return responseEntity;
-//    }
-//
-//    @DeleteMapping("/{fileName}")
-//    public ResponseEntity<?> deleteFile(@PathVariable String fileName) {
-//
-//        ResponseEntity responseEntity;
-//        try {
-//            awsBucketStorageService.deleteFile(bucketName, fileName);
-//            responseEntity = ResponseEntity.ok().build();
-//        } catch (FileStorageServiceException e) {
-//            logger.error(e.getMessage());
-//            responseEntity = ResponseEntity.status(500).body(e.getMessage());
-//        }
-//        return responseEntity;
-//    }
+    @PostMapping("storageProvider/{storageProvider}/storageLocation/{storageLocation}")
+    public ResponseEntity<?> uploadFile(@PathVariable("storageProvider") String storageProvider,
+                                        @PathVariable("storageLocation") String bucketName,
+                                        @RequestPart(value = "file") MultipartFile multipartFile) {
+
+        ResponseEntity responseEntity;
+        try {
+            String fileName = multipartFile.getOriginalFilename();
+            BucketStorageType bucketStorageType = BucketStorageType.valueOf(storageProvider);
+            bucketStorageService.doUploadMultipartFile(bucketName, fileName, multipartFile, bucketStorageType);
+            responseEntity = ResponseEntity.ok().build();
+        }
+
+        // Unable to upload file
+        catch (FileStorageServiceException e) {
+            logger.error(e.getMessage());
+            responseEntity = ResponseEntity.status(500).body(e.getMessage());
+        }
+
+        // BucketStorageType could not be identified from the storageProvider value
+        catch (IllegalArgumentException e) {
+            logger.error(e.getMessage());
+            responseEntity = ResponseEntity.status(500).body("Invalid storage provider identifier provided.");
+        }
+
+        return responseEntity;
+    }
+
+    @DeleteMapping("storageProvider/{storageProvider}/storageLocation/{storageLocation}/fileName/{fileName}")
+    public ResponseEntity<?> deleteFile(@PathVariable("storageProvider") String storageProvider,
+                                        @PathVariable("storageLocation") String bucketName,
+                                        @PathVariable String fileName) {
+
+        ResponseEntity responseEntity;
+
+        try {
+            BucketStorageType bucketStorageType = BucketStorageType.valueOf(storageProvider);
+            bucketStorageService.doDeleteFile(bucketName, fileName, bucketStorageType);
+            responseEntity = ResponseEntity.ok().build();
+        }
+
+        // Unable to delete file
+        catch (FileStorageServiceException e) {
+            logger.error(e.getMessage());
+            responseEntity = ResponseEntity.status(500).body(e.getMessage());
+        }
+
+        // BucketStorageType could not be identified from the storageProvider value
+        catch (IllegalArgumentException e) {
+            logger.error(e.getMessage());
+            responseEntity = ResponseEntity.status(500).body("Invalid storage provider identifier provided.");
+        }
+
+        return responseEntity;
+    }
 }
