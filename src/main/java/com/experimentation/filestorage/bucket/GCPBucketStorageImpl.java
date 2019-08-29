@@ -1,5 +1,6 @@
 package com.experimentation.filestorage.bucket;
 
+import com.google.cloud.BaseServiceException;
 import com.google.cloud.storage.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,25 @@ public class GCPBucketStorageImpl implements BucketStorage {
     }
 
     @Override
-    public FileStorageDTO getFile(String bucketName, String fileName) {
+    public FileStorageDTO getFile(String bucketName, String fileName) throws FileStorageServiceException {
         logger.info("Bucket Name: " + bucketName + " File Name:" + fileName);
-        Blob blob = storage.get(gcpBucketStorageUtil.createBlobId(bucketName, fileName));
-        return fileStorageUtil.createFileStorageDTO(fileName, blob.getContentType(), blob.getContent());
+
+        try {
+            Blob blob = storage.get(gcpBucketStorageUtil.createBlobId(bucketName, fileName));
+            return fileStorageUtil.createFileStorageDTO(fileName, blob.getContentType(), blob.getContent());
+        }
+
+        // Returned blob is null; no file was found
+        catch (NullPointerException e) {
+            logger.error(e.getMessage());
+            throw new FileStorageServiceException("Unable to get file " + fileName);
+        }
+
+        // Google Cloud extension of RuntimeException
+        catch (BaseServiceException e) {
+            logger.error(e.getMessage());
+            throw new FileStorageServiceException("Unable to get file " + fileName);
+        }
     }
 
     @Override
@@ -42,19 +58,38 @@ public class GCPBucketStorageImpl implements BucketStorage {
 
         try {
             storage.create(blobInfo, multipartFile.getBytes());
-        } catch(IOException e) {
+        }
+
+        // Unable to read multipart file for upload
+        catch(IOException e) {
             logger.error(e.getMessage());
             throw new FileStorageServiceException("Issue reading file to upload");
+        }
+
+        // Google Cloud extension of RuntimeException
+        catch (BaseServiceException e) {
+            logger.error(e.getMessage());
+            throw new FileStorageServiceException("Unable to get file " + fileName);
         }
     }
 
     @Override
     public void deleteFile(String bucketName, String fileName) throws FileStorageServiceException {
         logger.info("Bucket Name: " + bucketName + " File Name:" + fileName);
-        BlobId blobId = gcpBucketStorageUtil.createBlobId(bucketName, fileName);
-        boolean deleted = storage.delete(blobId);
-        if (!deleted) {
-            throw new FileStorageServiceException("Unable to delete file: " + fileName);
+
+        try {
+            BlobId blobId = gcpBucketStorageUtil.createBlobId(bucketName, fileName);
+            boolean deleted = storage.delete(blobId);
+            if (!deleted) {
+                logger.warn("Unable to delete file: " + fileName);
+                throw new FileStorageServiceException("Unable to delete file: " + fileName);
+            }
+        }
+
+        // Google Cloud extension of RuntimeException
+        catch (BaseServiceException e) {
+            logger.error(e.getMessage());
+            throw new FileStorageServiceException("Unable to get file " + fileName);
         }
     }
 }

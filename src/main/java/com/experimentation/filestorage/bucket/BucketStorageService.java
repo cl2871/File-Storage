@@ -14,7 +14,7 @@ public class BucketStorageService {
     private BucketStorageFactory bucketStorageFactory;
 
     public FileStorageDTO doGetFile(String bucketName, String fileName, BucketStorageType bucketStorageType)
-            throws Exception {
+            throws FileStorageServiceException {
         BucketStorage bucketStorage = bucketStorageFactory.getBucketStorageService(bucketStorageType);
         logger.info("BucketStorageService.doGetFile " + bucketStorage);
         return bucketStorage.getFile(bucketName, fileName);
