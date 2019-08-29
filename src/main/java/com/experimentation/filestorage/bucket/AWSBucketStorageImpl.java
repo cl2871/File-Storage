@@ -10,24 +10,24 @@ import com.amazonaws.services.s3.transfer.Upload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-@Service
-public class AWSBucketStorageServiceImpl implements BucketStorageService {
+@Component(BucketStorageTypeConstants.AWS_S3_STORAGE)
+public class AWSBucketStorageImpl implements BucketStorage {
 
-    private static final Logger logger = LoggerFactory.getLogger(AWSBucketStorageServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(AWSBucketStorageImpl.class);
 
     private final AmazonS3 amazonS3;
     private final AWSBucketStorageUtil awsBucketStorageUtil;
 
     @Autowired
-    public AWSBucketStorageServiceImpl(AmazonS3 amazonS3,
-                                       AWSBucketStorageUtil awsBucketStorageUtil) {
+    public AWSBucketStorageImpl(AmazonS3 amazonS3,
+                                AWSBucketStorageUtil awsBucketStorageUtil) {
         this.amazonS3 = amazonS3;
         this.awsBucketStorageUtil = awsBucketStorageUtil;
     }

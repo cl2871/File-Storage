@@ -4,24 +4,24 @@ import com.google.cloud.storage.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@Service
-public class GCPBucketStorageServiceImpl implements BucketStorageService {
+@Component(BucketStorageTypeConstants.GCP_STORAGE)
+public class GCPBucketStorageImpl implements BucketStorage {
 
     private Storage storage;
     private GCPBucketStorageUtil gcpBucketStorageUtil;
     private FileStorageUtil fileStorageUtil;
 
-    private static final Logger logger = LoggerFactory.getLogger(GCPBucketStorageServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(GCPBucketStorageImpl.class);
 
     @Autowired
-    public GCPBucketStorageServiceImpl(Storage storage,
-                                       GCPBucketStorageUtil gcpBucketStorageUtil,
-                                       FileStorageUtil fileStorageUtil) {
+    public GCPBucketStorageImpl(Storage storage,
+                                GCPBucketStorageUtil gcpBucketStorageUtil,
+                                FileStorageUtil fileStorageUtil) {
         this.storage = storage;
         this.gcpBucketStorageUtil = gcpBucketStorageUtil;
         this.fileStorageUtil = fileStorageUtil;

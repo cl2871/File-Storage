@@ -22,11 +22,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {GCPBucketStorageServiceImpl.class})
-public class GCPBucketStorageServiceImplTest {
+@ContextConfiguration(classes = {GCPBucketStorageImpl.class})
+public class GCPBucketStorageImplTest {
 
     @Autowired
-    private GCPBucketStorageServiceImpl gcpBucketStorageService;
+    private GCPBucketStorageImpl gcpBucketStorageService;
 
     @MockBean
     private Storage storage;

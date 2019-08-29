@@ -17,12 +17,12 @@ import java.io.IOException;
 public class GCPBucketStorageController {
 
     private String bucketName;
-    private GCPBucketStorageServiceImpl gcpBucketStorageService;
+    private GCPBucketStorageImpl gcpBucketStorageService;
 
     private static final Logger logger = LoggerFactory.getLogger(GCPBucketStorageController.class);
 
     @Autowired
-    public GCPBucketStorageController(@Value("${app.gcp.bucket}") String bucketName, GCPBucketStorageServiceImpl gcpBucketStorageService) {
+    public GCPBucketStorageController(@Value("${app.gcp.bucket}") String bucketName, GCPBucketStorageImpl gcpBucketStorageService) {
         this.bucketName = bucketName;
         this.gcpBucketStorageService = gcpBucketStorageService;
     }

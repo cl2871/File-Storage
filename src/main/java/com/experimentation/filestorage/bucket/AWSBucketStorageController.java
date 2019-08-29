@@ -15,12 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class AWSBucketStorageController {
 
     private String bucketName;
-    private AWSBucketStorageServiceImpl awsBucketStorageService;
+    private AWSBucketStorageImpl awsBucketStorageService;
 
     private static final Logger logger = LoggerFactory.getLogger(GCPBucketStorageController.class);
 
     @Autowired
-    public AWSBucketStorageController(@Value("${app.aws.bucket}") String bucketName, AWSBucketStorageServiceImpl awsBucketStorageService) {
+    public AWSBucketStorageController(@Value("${app.aws.bucket}") String bucketName, AWSBucketStorageImpl awsBucketStorageService) {
         this.bucketName = bucketName;
         this.awsBucketStorageService = awsBucketStorageService;
     }
