@@ -32,10 +32,10 @@ public class GCPBucketStorageImplTest {
     private Storage storage;
 
     @MockBean
-    private GCPBucketStorageUtil gcpBucketStorageUtil;
+    private GCPBucketStorageHelper gcpBucketStorageHelper;
 
     @MockBean
-    private FileStorageUtil fileStorageUtil;
+    private BucketStorageHelper bucketStorageHelper;
 
     @MockBean
     private MultipartFile multipartFile;
@@ -50,7 +50,7 @@ public class GCPBucketStorageImplTest {
     private boolean deletedFalse;
 
     // Other fields to initialize
-    private FileStorageDTO fileStorageDTO;
+    private BucketStorageDTO bucketStorageDTO;
     private BlobInfo blobInfo;
     private Blob blob;
 
@@ -62,7 +62,7 @@ public class GCPBucketStorageImplTest {
         contentType = MimeTypeUtils.TEXT_PLAIN_VALUE;
         content = "Example text".getBytes();
 
-        fileStorageDTO = new FileStorageDTO(fileName, contentType, content);
+        bucketStorageDTO = new BucketStorageDTO(fileName, contentType, content);
         blobInfo = Mockito.mock(BlobInfo.class);
         blob = Mockito.mock(Blob.class);
         deletedTrue = true;
@@ -70,27 +70,27 @@ public class GCPBucketStorageImplTest {
     }
 
     @Test
-    public void getFile_shouldReturnAFileStorageDTO_whenCalledWithFileName() {
+    public void getFile_shouldReturnABucketStorageDTO_whenCalledWithFileName() {
 
         // Arrange
         Mockito.doReturn(blobId)
-                .when(gcpBucketStorageUtil).createBlobId(bucketName, fileName);
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
         Mockito.doReturn(blob)
                 .when(storage).get(blobId);
         Mockito.doReturn(contentType)
                 .when(blob).getContentType();
         Mockito.doReturn(content)
                 .when(blob).getContent();
-        Mockito.doReturn(fileStorageDTO)
-                .when(fileStorageUtil).createFileStorageDTO(fileName, contentType, content);
+        Mockito.doReturn(this.bucketStorageDTO)
+                .when(bucketStorageHelper).createBucketStorageDTO(fileName, contentType, content);
 
         // Act
-        FileStorageDTO fileStorageDTO = gcpBucketStorageService.getFile(bucketName, fileName);
+        BucketStorageDTO bucketStorageDTO = gcpBucketStorageService.getFile(bucketName, fileName);
 
         // Assert
-        assertThat(fileStorageDTO.getFileName()).isEqualTo(fileName);
-        assertThat(fileStorageDTO.getContentType()).isEqualTo(contentType);
-        assertThat(fileStorageDTO.getData()).isEqualTo(content);
+        assertThat(bucketStorageDTO.getFileName()).isEqualTo(fileName);
+        assertThat(bucketStorageDTO.getContentType()).isEqualTo(contentType);
+        assertThat(bucketStorageDTO.getData()).isEqualTo(content);
         verifyStorageGetIsCalledOnce();
     }
 
@@ -100,11 +100,11 @@ public class GCPBucketStorageImplTest {
 
         // Arrange
         Mockito.doReturn(blobId)
-                .when(gcpBucketStorageUtil).createBlobId(bucketName, fileName);
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
         Mockito.doReturn(contentType)
                 .when(multipartFile).getContentType();
         Mockito.doReturn(blobInfo)
-                .when(gcpBucketStorageUtil).createBlobInfo(blobId, contentType);
+                .when(gcpBucketStorageHelper).createBlobInfo(blobId, contentType);
         Mockito.doReturn(content)
                 .when(multipartFile).getBytes();
         Mockito.doReturn(blob)
@@ -122,7 +122,7 @@ public class GCPBucketStorageImplTest {
 
         // Arrange
         Mockito.doReturn(blobId)
-                .when(gcpBucketStorageUtil).createBlobId(bucketName, fileName);
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
         Mockito.doReturn(deletedTrue)
                 .when(storage).delete(blobId);
 
@@ -133,12 +133,12 @@ public class GCPBucketStorageImplTest {
         verifyStorageDeleteIsCalledOnce();
     }
 
-    @Test(expected = FileStorageServiceException.class)
-    public void deleteFile_shouldThrowFileStorageServiceException_whenCalledWithFileNameAndFileIsNotInBucket() {
+    @Test(expected = BucketStorageServiceException.class)
+    public void deleteFile_shouldThrowBucketStorageServiceException_whenCalledWithFileNameAndFileIsNotInBucket() {
 
         // Arrange
         Mockito.doReturn(blobId)
-                .when(gcpBucketStorageUtil).createBlobId(bucketName, fileName);
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
         Mockito.doReturn(deletedFalse)
                 .when(storage).delete(blobId);
 

@@ -1,6 +1,6 @@
 package com.experimentation.filestorage.bucket;
 
-public class FileStorageDTO {
+public class BucketStorageDTO {
 
     private String fileName;
 
@@ -8,7 +8,7 @@ public class FileStorageDTO {
 
     private byte[] data;
 
-    public FileStorageDTO(String fileName, String contentType, byte[] data) {
+    public BucketStorageDTO(String fileName, String contentType, byte[] data) {
         this.fileName = fileName;
         this.contentType = contentType;
         this.data = data;

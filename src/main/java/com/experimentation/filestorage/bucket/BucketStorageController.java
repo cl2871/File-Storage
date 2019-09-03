@@ -37,18 +37,18 @@ public class BucketStorageController {
 
         try {
             BucketStorageType bucketStorageType = BucketStorageType.valueOf(storageProvider);
-            FileStorageDTO fileStorageDTO = bucketStorageService.doGetFile(bucketName, fileName, bucketStorageType);
+            BucketStorageDTO bucketStorageDTO = bucketStorageService.doGetFile(bucketName, fileName, bucketStorageType);
 
             // Setup response to have the object/file as an attachment
             responseEntity = ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(fileStorageDTO.getContentType()))
+                    .contentType(MediaType.parseMediaType(bucketStorageDTO.getContentType()))
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + fileStorageDTO.getFileName() + "\"")
-                    .body(fileStorageDTO.getData());
+                            "attachment; filename=\"" + bucketStorageDTO.getFileName() + "\"")
+                    .body(bucketStorageDTO.getData());
         }
 
         // Unable to retrieve file
-        catch (FileStorageServiceException e) {
+        catch (BucketStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
         }
@@ -76,7 +76,7 @@ public class BucketStorageController {
         }
 
         // Unable to upload file
-        catch (FileStorageServiceException e) {
+        catch (BucketStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
         }
@@ -104,7 +104,7 @@ public class BucketStorageController {
         }
 
         // Unable to delete file
-        catch (FileStorageServiceException e) {
+        catch (BucketStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
         }

@@ -14,35 +14,35 @@ import java.io.IOException;
 public class GCPBucketStorageImpl implements BucketStorage {
 
     private Storage storage;
-    private GCPBucketStorageUtil gcpBucketStorageUtil;
-    private FileStorageUtil fileStorageUtil;
+    private final GCPBucketStorageHelper gcpBucketStorageHelper;
+    private final BucketStorageHelper bucketStorageHelper;
 
     private static final Logger logger = LoggerFactory.getLogger(GCPBucketStorageImpl.class);
 
     @Autowired
     public GCPBucketStorageImpl(Storage storage,
-                                GCPBucketStorageUtil gcpBucketStorageUtil,
-                                FileStorageUtil fileStorageUtil) {
+                                GCPBucketStorageHelper gcpBucketStorageHelper,
+                                BucketStorageHelper bucketStorageHelper) {
         this.storage = storage;
-        this.gcpBucketStorageUtil = gcpBucketStorageUtil;
-        this.fileStorageUtil = fileStorageUtil;
+        this.gcpBucketStorageHelper = gcpBucketStorageHelper;
+        this.bucketStorageHelper = bucketStorageHelper;
     }
 
     @Override
-    public FileStorageDTO getFile(String bucketName, String fileName) throws FileStorageServiceException {
+    public BucketStorageDTO getFile(String bucketName, String fileName) throws BucketStorageServiceException {
 
         BucketStorageLoggerUtil.infoStartGettingFile(logger, bucketName, fileName);
 
         try {
-            Blob blob = storage.get(gcpBucketStorageUtil.createBlobId(bucketName, fileName));
+            Blob blob = storage.get(gcpBucketStorageHelper.createBlobId(bucketName, fileName));
             BucketStorageLoggerUtil.infoFinishGettingFile(logger, bucketName, fileName);
-            return fileStorageUtil.createFileStorageDTO(fileName, blob.getContentType(), blob.getContent());
+            return bucketStorageHelper.createBucketStorageDTO(fileName, blob.getContentType(), blob.getContent());
         }
 
         // Returned blob is null; no file was found
         catch (NullPointerException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException(
+            throw new BucketStorageServiceException(
                     BucketStorageExceptionUtil.setMessageUnableToGetFile(bucketName, fileName)
             );
         }
@@ -50,7 +50,7 @@ public class GCPBucketStorageImpl implements BucketStorage {
         // Google Cloud extension of RuntimeException
         catch (BaseServiceException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException(
+            throw new BucketStorageServiceException(
                     BucketStorageExceptionUtil.setMessageUnableToGetFile(bucketName, fileName)
             );
         }
@@ -58,12 +58,12 @@ public class GCPBucketStorageImpl implements BucketStorage {
 
     @Override
     public void uploadMultipartFile(String bucketName, String fileName, MultipartFile multipartFile)
-            throws FileStorageServiceException {
+            throws BucketStorageServiceException {
 
         BucketStorageLoggerUtil.infoStartUploadingFile(logger, bucketName, fileName);
 
-        BlobId blobId = gcpBucketStorageUtil.createBlobId(bucketName, fileName);
-        BlobInfo blobInfo = gcpBucketStorageUtil.createBlobInfo(blobId, multipartFile.getContentType());
+        BlobId blobId = gcpBucketStorageHelper.createBlobId(bucketName, fileName);
+        BlobInfo blobInfo = gcpBucketStorageHelper.createBlobInfo(blobId, multipartFile.getContentType());
 
         try {
             storage.create(blobInfo, multipartFile.getBytes());
@@ -73,7 +73,7 @@ public class GCPBucketStorageImpl implements BucketStorage {
         // Unable to read multipart file for upload
         catch(IOException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException(
+            throw new BucketStorageServiceException(
                     BucketStorageExceptionUtil.setMessageUnableToReadFileForUpload(fileName)
             );
         }
@@ -81,22 +81,22 @@ public class GCPBucketStorageImpl implements BucketStorage {
         // Google Cloud extension of RuntimeException
         catch (BaseServiceException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException(
+            throw new BucketStorageServiceException(
                     BucketStorageExceptionUtil.setMessageUnableToUploadMultipartFile(bucketName, fileName)
             );
         }
     }
 
     @Override
-    public void deleteFile(String bucketName, String fileName) throws FileStorageServiceException {
+    public void deleteFile(String bucketName, String fileName) throws BucketStorageServiceException {
 
         BucketStorageLoggerUtil.infoStartDeletingFile(logger, bucketName, fileName);
 
         try {
-            BlobId blobId = gcpBucketStorageUtil.createBlobId(bucketName, fileName);
+            BlobId blobId = gcpBucketStorageHelper.createBlobId(bucketName, fileName);
             boolean deleted = storage.delete(blobId);
             if (!deleted) {
-                throw new FileStorageServiceException(
+                throw new BucketStorageServiceException(
                         BucketStorageExceptionUtil.setMessageUnableToDeleteFile(bucketName, fileName)
                 );
             }
@@ -106,7 +106,7 @@ public class GCPBucketStorageImpl implements BucketStorage {
         // Google Cloud extension of RuntimeException
         catch (BaseServiceException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException(
+            throw new BucketStorageServiceException(
                     BucketStorageExceptionUtil.setMessageUnableToDeleteFile(bucketName, fileName)
             );
         }

@@ -32,15 +32,15 @@ public class GCPBucketStorageController {
 
         ResponseEntity responseEntity;
         try {
-            FileStorageDTO fileStorageDTO = gcpBucketStorageService.getFile(bucketName, fileName);
+            BucketStorageDTO bucketStorageDTO = gcpBucketStorageService.getFile(bucketName, fileName);
 
             // Setup response to have the object/file as an attachment
             responseEntity = ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(fileStorageDTO.getContentType()))
+                    .contentType(MediaType.parseMediaType(bucketStorageDTO.getContentType()))
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + fileStorageDTO.getFileName() + "\"")
-                    .body(fileStorageDTO.getData());
-        } catch (FileStorageServiceException e) {
+                            "attachment; filename=\"" + bucketStorageDTO.getFileName() + "\"")
+                    .body(bucketStorageDTO.getData());
+        } catch (BucketStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
         }
@@ -54,7 +54,7 @@ public class GCPBucketStorageController {
         try {
             gcpBucketStorageService.uploadMultipartFile(bucketName, multipartFile.getOriginalFilename(), multipartFile);
             responseEntity = ResponseEntity.ok().build();
-        } catch (FileStorageServiceException e) {
+        } catch (BucketStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
         }
@@ -68,7 +68,7 @@ public class GCPBucketStorageController {
         try {
             gcpBucketStorageService.deleteFile(bucketName, fileName);
             responseEntity = ResponseEntity.ok().build();
-        } catch (FileStorageServiceException e) {
+        } catch (BucketStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
         }
