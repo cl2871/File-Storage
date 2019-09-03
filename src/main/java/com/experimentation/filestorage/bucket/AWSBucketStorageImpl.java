@@ -35,7 +35,7 @@ public class AWSBucketStorageImpl implements BucketStorage {
     @Override
     public FileStorageDTO getFile(String bucketName, String fileName) throws FileStorageServiceException {
 
-        logger.info("Retrieving file " + fileName);
+        BucketStorageLoggerUtil.infoStartGettingFile(logger, bucketName, fileName);
 
         // Try-with-resources for the S3Object
         try (S3Object s3Object = amazonS3.getObject(awsBucketStorageUtil.newGetObjectRequest(bucketName, fileName))){
@@ -48,30 +48,39 @@ public class AWSBucketStorageImpl implements BucketStorage {
             // Note: encoder converts a space to a plus, so we replace the pluses with %20 for content disposition
             fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
 
+            BucketStorageLoggerUtil.infoFinishGettingFile(logger, bucketName, fileName);
             return new FileStorageDTO(fileName, contentType, bytes);
         }
 
         // Upload call was transmitted successfully, but Amazon S3 couldn't process it
         catch (AmazonServiceException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Unable to get file " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUnableToGetFile(bucketName, fileName)
+            );
         }
 
         // Amazon S3 couldn't be contacted for a response, or the client couldn't parse the response
         catch (SdkClientException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Unable to get file " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUnableToGetFile(bucketName, fileName)
+            );
         }
 
         // Could not convert S3ObjectInputStream to byte array
         catch(IOException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Unable to convert input stream to bytes for file " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUnableToConvertInputStream(fileName)
+            );
         }
     }
 
     @Override
     public void uploadMultipartFile(String bucketName, String fileName, MultipartFile file) throws FileStorageServiceException {
+
+        BucketStorageLoggerUtil.infoStartUploadingFile(logger, bucketName, fileName);
 
         File tempFile = null;
 
@@ -81,35 +90,42 @@ public class AWSBucketStorageImpl implements BucketStorage {
 
             // TransferManager processes all transfers asynchronously, so the upload call returns immediately
             Upload upload = transferManager.upload(bucketName, fileName, tempFile);
-            logger.info("Started uploading file " + fileName);
 
             // We wait for the upload to finish before continuing.
             upload.waitForCompletion();
-            logger.info("Upload completed for file " + fileName);
+            BucketStorageLoggerUtil.infoFinishUploadingFile(logger, bucketName, fileName);
         }
 
         // Upload call was transmitted successfully, but Amazon S3 couldn't process it
         catch(AmazonServiceException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Unable to upload file " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUnableToUploadMultipartFile(bucketName, fileName)
+            );
         }
 
         // Amazon S3 couldn't be contacted for a response, or the client couldn't parse the response
         catch(SdkClientException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Unable to upload file " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUnableToUploadMultipartFile(bucketName, fileName)
+            );
         }
 
         // While upload waitForCompletion, the thread is interrupted
         catch(InterruptedException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Upload thread was interrupted " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUploadThreadInterrupted(fileName)
+            );
         }
 
         // Unable to create a temporary file for upload
         catch(IOException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Unable to create a temp file or read content from file " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUnableToCreateTempFileOrReadContent(fileName)
+            );
         }
 
         // Clean up by removing temp file
@@ -123,21 +139,27 @@ public class AWSBucketStorageImpl implements BucketStorage {
     @Override
     public void deleteFile(String bucketName, String fileName) throws FileStorageServiceException {
 
+        BucketStorageLoggerUtil.infoStartDeletingFile(logger, bucketName, fileName);
+
         try {
             amazonS3.deleteObject(awsBucketStorageUtil.newDeleteObjectRequest(bucketName, fileName));
-            logger.info("Deleted file " + fileName);
+            BucketStorageLoggerUtil.infoFinishDeletingFile(logger, bucketName, fileName);
         }
 
         // Delete call was transmitted successfully, but Amazon S3 couldn't process it
         catch(AmazonServiceException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Unable to delete file " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUnableToDeleteFile(bucketName, fileName)
+            );
         }
 
         // Amazon S3 couldn't be contacted for a response, or the client couldn't parse the response
         catch(SdkClientException e) {
             logger.error(e.getMessage());
-            throw new FileStorageServiceException("Unable to delete file " + fileName);
+            throw new FileStorageServiceException(
+                    BucketStorageExceptionUtil.setMessageUnableToDeleteFile(bucketName, fileName)
+            );
         }
     }
 }
