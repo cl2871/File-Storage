@@ -1,5 +1,6 @@
 package com.experimentation.filestorage.bucket;
 
+import com.google.cloud.BaseServiceException;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -94,6 +95,34 @@ public class GCPBucketStorageImplTest {
         verifyStorageGetIsCalledOnce();
     }
 
+    @Test(expected = BucketStorageServiceException.class)
+    public void getFile_shouldThrowBucketStorageServiceException_whenNoFileIsFound() {
+
+        // Arrange
+        Mockito.doReturn(blobId)
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
+
+        // Storage returning a null blob will cause a NullPointerException to be thrown when called on
+        Mockito.doReturn(null)
+                .when(storage).get(blobId);
+
+        // Act
+        gcpBucketStorageService.getFile(bucketName, fileName);
+    }
+
+    @Test(expected = BucketStorageServiceException.class)
+    public void getFile_shouldThrowBucketStorageServiceException_whenBaseServiceExceptionIsThrown() {
+
+        // Arrange
+        Mockito.doReturn(blobId)
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
+        Mockito.doThrow(BaseServiceException.class)
+                .when(storage).get(blobId);
+
+        // Act
+        gcpBucketStorageService.getFile(bucketName, fileName);
+    }
+
     @Test
     public void uploadMultipartFile_shouldCompleteUpload_whenCalledWithBucketNameAndFileNameAndMultipartFile()
             throws IOException {
@@ -115,6 +144,44 @@ public class GCPBucketStorageImplTest {
 
         // Assert
         verifyStorageCreateIsCalledOnce();
+    }
+
+    @Test(expected = BucketStorageServiceException.class)
+    public void uploadFile_shouldThrowBucketStorageServiceException_whenIOExceptionIsThrown()
+            throws IOException {
+
+        // Arrange
+        Mockito.doReturn(blobId)
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
+        Mockito.doReturn(contentType)
+                .when(multipartFile).getContentType();
+        Mockito.doReturn(blobInfo)
+                .when(gcpBucketStorageHelper).createBlobInfo(blobId, contentType);
+        Mockito.doThrow(IOException.class)
+                .when(multipartFile).getBytes();
+
+        // Act
+        gcpBucketStorageService.uploadMultipartFile(bucketName, fileName, multipartFile);
+    }
+
+    @Test(expected = BucketStorageServiceException.class)
+    public void uploadFile_shouldThrowBucketStorageServiceException_whenBaseServiceExceptionIsThrown()
+            throws IOException {
+
+        // Arrange
+        Mockito.doReturn(blobId)
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
+        Mockito.doReturn(contentType)
+                .when(multipartFile).getContentType();
+        Mockito.doReturn(blobInfo)
+                .when(gcpBucketStorageHelper).createBlobInfo(blobId, contentType);
+        Mockito.doReturn(content)
+                .when(multipartFile).getBytes();
+        Mockito.doThrow(BaseServiceException.class)
+                .when(storage).create(blobInfo, content);
+
+        // Act
+        gcpBucketStorageService.uploadMultipartFile(bucketName, fileName, multipartFile);
     }
 
     @Test
@@ -140,6 +207,19 @@ public class GCPBucketStorageImplTest {
         Mockito.doReturn(blobId)
                 .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
         Mockito.doReturn(deletedFalse)
+                .when(storage).delete(blobId);
+
+        // Act
+        gcpBucketStorageService.deleteFile(bucketName, fileName);
+    }
+
+    @Test(expected = BucketStorageServiceException.class)
+    public void deleteFile_shouldThrowBucketStorageServiceException_whenBaseServiceExceptionIsThrown() {
+
+        // Arrange
+        Mockito.doReturn(blobId)
+                .when(gcpBucketStorageHelper).createBlobId(bucketName, fileName);
+        Mockito.doThrow(BaseServiceException.class)
                 .when(storage).delete(blobId);
 
         // Act
