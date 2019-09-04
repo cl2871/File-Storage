@@ -5,13 +5,13 @@ import com.google.cloud.storage.BlobInfo;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GCPBucketStorageUtil {
+public class GCPBucketStorageHelper {
 
-    public BlobId createBlobId(String bucketName, String fileName) {
+    protected BlobId createBlobId(String bucketName, String fileName) {
         return BlobId.of(bucketName, fileName);
     }
 
-    public BlobInfo createBlobInfo(BlobId blobId, String contentType){
+    protected BlobInfo createBlobInfo(BlobId blobId, String contentType){
         return BlobInfo.newBuilder(blobId).setContentType(contentType).build();
     }
 }

@@ -2,17 +2,17 @@ package com.experimentation.filestorage.bucket;
 
 public enum BucketStorageType {
 
-    AWS_S3(BucketStorageTypeConstants.AWS_S3_STORAGE),
-    GCP(BucketStorageTypeConstants.GCP_STORAGE);
+    AWS_S3(BucketStorageTypeConstants.AWS_S3),
+    GCP(BucketStorageTypeConstants.GCP);
 
-    private final String parserName;
+    private final String storageName;
 
-    BucketStorageType(String parserName) {
-        this.parserName = parserName;
+    BucketStorageType(String storageName) {
+        this.storageName = storageName;
     }
 
     @Override
     public String toString() {
-        return this.parserName;
+        return this.storageName;
     }
 }

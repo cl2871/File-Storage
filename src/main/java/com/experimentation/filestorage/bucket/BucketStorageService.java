@@ -14,8 +14,8 @@ public class BucketStorageService {
     @Autowired
     private BucketStorageFactory bucketStorageFactory;
 
-    public FileStorageDTO doGetFile(String bucketName, String fileName, BucketStorageType bucketStorageType)
-            throws FileStorageServiceException {
+    public BucketStorageDTO doGetFile(String bucketName, String fileName, BucketStorageType bucketStorageType)
+            throws BucketStorageServiceException {
         BucketStorage bucketStorage = bucketStorageFactory.getBucketStorageService(bucketStorageType);
         logger.info("BucketStorageService.doGetFile " + bucketStorage);
         return bucketStorage.getFile(bucketName, fileName);
@@ -23,14 +23,14 @@ public class BucketStorageService {
 
     public void doUploadMultipartFile(String bucketName, String fileName, MultipartFile multipartFile,
                                                 BucketStorageType bucketStorageType)
-            throws FileStorageServiceException {
+            throws BucketStorageServiceException {
         BucketStorage bucketStorage = bucketStorageFactory.getBucketStorageService(bucketStorageType);
         logger.info("BucketStorageService.doUploadMultipartFile " + bucketStorage);
         bucketStorage.uploadMultipartFile(bucketName, fileName, multipartFile);
     }
 
     public void doDeleteFile(String bucketName, String fileName, BucketStorageType bucketStorageType)
-            throws FileStorageServiceException {
+            throws BucketStorageServiceException {
         BucketStorage bucketStorage = bucketStorageFactory.getBucketStorageService(bucketStorageType);
         logger.info("BucketStorageService.doDeleteFile " + bucketStorage);
         bucketStorage.deleteFile(bucketName, fileName);
