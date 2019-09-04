@@ -15,7 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 @Component
-public class AWSBucketStorageUtil {
+public class AWSBucketStorageHelper {
 
     protected GetObjectRequest newGetObjectRequest(String bucketName, String fileName) {
         return new GetObjectRequest(bucketName, fileName);

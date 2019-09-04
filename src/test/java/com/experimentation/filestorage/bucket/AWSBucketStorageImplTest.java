@@ -23,20 +23,23 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {AWSBucketStorageServiceImpl.class})
-public class AWSBucketStorageServiceImplTest {
+@ContextConfiguration(classes = {AWSBucketStorageImpl.class})
+public class AWSBucketStorageImplTest {
 
     @Autowired
-    private AWSBucketStorageServiceImpl awsBucketStorageService;
+    private AWSBucketStorageImpl awsBucketStorageService;
 
     @MockBean
     private AmazonS3 amazonS3;
 
     @MockBean
-    private AWSBucketStorageUtil awsBucketStorageUtil;
+    private AWSBucketStorageHelper awsBucketStorageHelper;
+
+    @MockBean
+    private BucketStorageHelper bucketStorageHelper;
 
     @MockBean
     private S3Object s3Object;
@@ -52,6 +55,9 @@ public class AWSBucketStorageServiceImplTest {
 
     @MockBean
     private S3ObjectInputStream s3ObjectInputStream;
+
+    @MockBean
+    private BucketStorageDTO bucketStorageDTO;
 
     @MockBean
     private TransferManager transferManager;
@@ -84,11 +90,11 @@ public class AWSBucketStorageServiceImplTest {
     }
 
     @Test
-    public void getFile_shouldReturnAFileStorageDTO_whenCalledWithFileName() throws IOException {
+    public void getFile_shouldReturnABucketStorageDTO_whenCalledWithFileName() throws IOException {
 
         // Arrange
         Mockito.doReturn(getObjectRequest)
-                .when(awsBucketStorageUtil).newGetObjectRequest(bucketName, fileName);
+                .when(awsBucketStorageHelper).newGetObjectRequest(bucketName, fileName);
         Mockito.doReturn(s3Object)
                 .when(amazonS3).getObject(getObjectRequest);
         Mockito.doReturn(objectMetadata)
@@ -98,24 +104,24 @@ public class AWSBucketStorageServiceImplTest {
         Mockito.doReturn(s3ObjectInputStream)
                 .when(s3Object).getObjectContent();
         Mockito.doReturn(bytes)
-                .when(awsBucketStorageUtil).convertS3ObjectInputStreamToByteArray(s3ObjectInputStream);
+                .when(awsBucketStorageHelper).convertS3ObjectInputStreamToByteArray(s3ObjectInputStream);
+        Mockito.doReturn(bucketStorageDTO)
+                .when(bucketStorageHelper).createBucketStorageDTO(fileName, contentType, bytes);
 
         // Act
-        FileStorageDTO fileStorageDTO = awsBucketStorageService.getFile(bucketName, fileName);
+        BucketStorageDTO resultBucketStorageDTO = awsBucketStorageService.getFile(bucketName, fileName);
 
         // Assert
-        assertThat(fileStorageDTO.getFileName()).isEqualTo(fileName);
-        assertThat(fileStorageDTO.getContentType()).isEqualTo(contentType);
-        assertThat(fileStorageDTO.getData()).isEqualTo(bytes);
+        assertThat(resultBucketStorageDTO).isEqualTo(bucketStorageDTO);
         verifyGetObjectIsCalledOnce();
     }
 
-    @Test(expected = FileStorageServiceException.class)
-    public void getFile_shouldThrowFileStorageException_whenAmazonServiceExceptionIsThrown() {
+    @Test(expected = BucketStorageServiceException.class)
+    public void getFile_shouldThrowBucketStorageServiceException_whenAmazonServiceExceptionIsThrown() {
 
         // Arrange
         Mockito.doReturn(getObjectRequest)
-                .when(awsBucketStorageUtil).newGetObjectRequest(bucketName, fileName);
+                .when(awsBucketStorageHelper).newGetObjectRequest(bucketName, fileName);
         Mockito.doThrow(AmazonServiceException.class)
                 .when(amazonS3).getObject(getObjectRequest);
 
@@ -123,12 +129,12 @@ public class AWSBucketStorageServiceImplTest {
         awsBucketStorageService.getFile(bucketName, fileName);
     }
 
-    @Test(expected = FileStorageServiceException.class)
-    public void getFile_shouldThrowFileStorageException_whenSdkClientExceptionIsThrown() {
+    @Test(expected = BucketStorageServiceException.class)
+    public void getFile_shouldThrowBucketStorageServiceException_whenSdkClientExceptionIsThrown() {
 
         // Arrange
         Mockito.doReturn(getObjectRequest)
-                .when(awsBucketStorageUtil).newGetObjectRequest(bucketName, fileName);
+                .when(awsBucketStorageHelper).newGetObjectRequest(bucketName, fileName);
         Mockito.doThrow(SdkClientException.class)
                 .when(amazonS3).getObject(getObjectRequest);
 
@@ -136,12 +142,12 @@ public class AWSBucketStorageServiceImplTest {
         awsBucketStorageService.getFile(bucketName, fileName);
     }
 
-    @Test(expected = FileStorageServiceException.class)
-    public void getFile_shouldThrowFileStorageException_whenIOExceptionIsThrown() throws IOException {
+    @Test(expected = BucketStorageServiceException.class)
+    public void getFile_shouldThrowBucketStorageServiceException_whenIOExceptionIsThrown() throws IOException {
 
         // Arrange
         Mockito.doReturn(getObjectRequest)
-                .when(awsBucketStorageUtil).newGetObjectRequest(bucketName, fileName);
+                .when(awsBucketStorageHelper).newGetObjectRequest(bucketName, fileName);
         Mockito.doReturn(s3Object)
                 .when(amazonS3).getObject(getObjectRequest);
         Mockito.doReturn(objectMetadata)
@@ -151,7 +157,7 @@ public class AWSBucketStorageServiceImplTest {
         Mockito.doReturn(s3ObjectInputStream)
                 .when(s3Object).getObjectContent();
         Mockito.doThrow(IOException.class)
-                .when(awsBucketStorageUtil).convertS3ObjectInputStreamToByteArray(s3ObjectInputStream);
+                .when(awsBucketStorageHelper).convertS3ObjectInputStreamToByteArray(s3ObjectInputStream);
 
         // Act
         awsBucketStorageService.getFile(bucketName, fileName);
@@ -163,9 +169,9 @@ public class AWSBucketStorageServiceImplTest {
 
         // Arrange
         Mockito.doReturn(transferManager)
-                .when(awsBucketStorageUtil).buildTransferManager(amazonS3);
+                .when(awsBucketStorageHelper).buildTransferManager(amazonS3);
         Mockito.doReturn(file)
-                .when(awsBucketStorageUtil).convertMultipartFileToTemporaryFile(multipartFile);
+                .when(awsBucketStorageHelper).convertMultipartFileToTemporaryFile(multipartFile);
         Mockito.doReturn(upload)
                 .when(transferManager).upload(bucketName, fileName, file);
         Mockito.doNothing()
@@ -183,13 +189,14 @@ public class AWSBucketStorageServiceImplTest {
     }
 
     @Test
-    public void uploadMultipartFile_shouldThrowFileStorageException_whenAmazonServiceExceptionIsThrown() throws IOException {
+    public void uploadMultipartFile_shouldThrowBucketStorageServiceException_whenAmazonServiceExceptionIsThrown()
+            throws IOException {
 
         // Arrange
         Mockito.doReturn(transferManager)
-                .when(awsBucketStorageUtil).buildTransferManager(amazonS3);
+                .when(awsBucketStorageHelper).buildTransferManager(amazonS3);
         Mockito.doReturn(file)
-                .when(awsBucketStorageUtil).convertMultipartFileToTemporaryFile(multipartFile);
+                .when(awsBucketStorageHelper).convertMultipartFileToTemporaryFile(multipartFile);
         Mockito.doThrow(AmazonServiceException.class)
                 .when(transferManager).upload(bucketName, fileName, file);
         Mockito.doReturn(tempFileDeletedTrue)
@@ -198,8 +205,8 @@ public class AWSBucketStorageServiceImplTest {
         // Act
         try {
             awsBucketStorageService.uploadMultipartFile(bucketName, fileName, multipartFile);
-        } catch (FileStorageServiceException e) {
-            assertThat(e).isInstanceOf(FileStorageServiceException.class);
+        } catch (BucketStorageServiceException e) {
+            assertThat(e).isInstanceOf(BucketStorageServiceException.class);
         }
 
         // Assert
@@ -211,7 +218,7 @@ public class AWSBucketStorageServiceImplTest {
 
         // Arrange
         Mockito.doReturn(deleteObjectRequest)
-                .when(awsBucketStorageUtil).newDeleteObjectRequest(bucketName, fileName);
+                .when(awsBucketStorageHelper).newDeleteObjectRequest(bucketName, fileName);
         Mockito.doNothing()
                 .when(amazonS3).deleteObject(deleteObjectRequest);
 
@@ -222,12 +229,12 @@ public class AWSBucketStorageServiceImplTest {
         verifyAmazonS3DeleteObjectIsCalledOnce();
     }
 
-    @Test(expected = FileStorageServiceException.class)
-    public void deleteFile_shouldThrowFileStorageServiceException_whenAmazonS3ExceptionIsThrown() {
+    @Test(expected = BucketStorageServiceException.class)
+    public void deleteFile_shouldThrowBucketStorageServiceException_whenAmazonS3ExceptionIsThrown() {
 
         // Arrange
         Mockito.doReturn(deleteObjectRequest)
-                .when(awsBucketStorageUtil).newDeleteObjectRequest(bucketName, fileName);
+                .when(awsBucketStorageHelper).newDeleteObjectRequest(bucketName, fileName);
         Mockito.doThrow(AmazonS3Exception.class)
                 .when(amazonS3).deleteObject(deleteObjectRequest);
 
@@ -235,12 +242,12 @@ public class AWSBucketStorageServiceImplTest {
         awsBucketStorageService.deleteFile(bucketName, fileName);
     }
 
-    @Test(expected = FileStorageServiceException.class)
-    public void deleteFile_shouldThrowFileStorageServiceException_whenSdkClientExceptionIsThrown() {
+    @Test(expected = BucketStorageServiceException.class)
+    public void deleteFile_shouldThrowBucketStorageServiceException_whenSdkClientExceptionIsThrown() {
 
         // Arrange
         Mockito.doReturn(deleteObjectRequest)
-                .when(awsBucketStorageUtil).newDeleteObjectRequest(bucketName, fileName);
+                .when(awsBucketStorageHelper).newDeleteObjectRequest(bucketName, fileName);
         Mockito.doThrow(SdkClientException.class)
                 .when(amazonS3).deleteObject(deleteObjectRequest);
 
@@ -255,7 +262,7 @@ public class AWSBucketStorageServiceImplTest {
 
     private void verifyTransferManagerUploadIsCalledOnce() {
         Mockito.verify(transferManager, VerificationModeFactory.times(1))
-                .upload(anyString(), anyString(), any(File.class));
+                .upload(eq(bucketName), eq(fileName), any(File.class));
     }
 
     private void verifyUploadWaitForCompletionIsCalledOnce() throws InterruptedException {
@@ -270,6 +277,6 @@ public class AWSBucketStorageServiceImplTest {
 
     private void verifyAmazonS3DeleteObjectIsCalledOnce() {
         Mockito.verify(amazonS3, VerificationModeFactory.times(1))
-                .deleteObject(any());
+                .deleteObject(any(DeleteObjectRequest.class));
     }
 }
