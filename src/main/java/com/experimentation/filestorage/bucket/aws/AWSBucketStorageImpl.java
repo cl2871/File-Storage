@@ -1,4 +1,4 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.aws;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
@@ -7,6 +7,11 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
+import com.experimentation.filestorage.bucket.*;
+import com.experimentation.filestorage.bucket.util.BucketStorageExceptionUtil;
+import com.experimentation.filestorage.bucket.util.BucketStorageHelper;
+import com.experimentation.filestorage.bucket.util.BucketStorageLoggerUtil;
+import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

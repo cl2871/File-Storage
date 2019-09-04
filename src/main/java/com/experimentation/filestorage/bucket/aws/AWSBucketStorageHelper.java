@@ -1,4 +1,4 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.aws;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;

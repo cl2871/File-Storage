@@ -1,4 +1,4 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.gcp;
 
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;

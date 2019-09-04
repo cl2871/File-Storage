@@ -1,5 +1,8 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.gcp;
 
+import com.experimentation.filestorage.bucket.BucketStorageDTO;
+import com.experimentation.filestorage.bucket.util.BucketStorageHelper;
+import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import com.google.cloud.BaseServiceException;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;

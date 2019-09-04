@@ -1,5 +1,6 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.util;
 
+import com.experimentation.filestorage.bucket.BucketStorageDTO;
 import org.springframework.stereotype.Component;
 
 @Component

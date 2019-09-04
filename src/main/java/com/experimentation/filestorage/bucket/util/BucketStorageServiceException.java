@@ -1,4 +1,4 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.util;
 
 public class BucketStorageServiceException extends RuntimeException {
 
