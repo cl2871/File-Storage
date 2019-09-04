@@ -1,5 +1,6 @@
 package com.experimentation.filestorage.bucket;
 
+import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface BucketStorage {
