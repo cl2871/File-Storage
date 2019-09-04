@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-@Component(BucketStorageTypeConstants.AWS_S3_STORAGE)
+@Component(BucketStorageTypeConstants.AWS_S3)
 public class AWSBucketStorageImpl implements BucketStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(AWSBucketStorageImpl.class);

@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {AWSBucketStorageImpl.class})
@@ -117,7 +117,7 @@ public class AWSBucketStorageImplTest {
     }
 
     @Test(expected = BucketStorageServiceException.class)
-    public void getFile_shouldThrowBucketStorageException_whenAmazonServiceExceptionIsThrown() {
+    public void getFile_shouldThrowBucketStorageServiceException_whenAmazonServiceExceptionIsThrown() {
 
         // Arrange
         Mockito.doReturn(getObjectRequest)
@@ -130,7 +130,7 @@ public class AWSBucketStorageImplTest {
     }
 
     @Test(expected = BucketStorageServiceException.class)
-    public void getFile_shouldThrowBucketStorageException_whenSdkClientExceptionIsThrown() {
+    public void getFile_shouldThrowBucketStorageServiceException_whenSdkClientExceptionIsThrown() {
 
         // Arrange
         Mockito.doReturn(getObjectRequest)
@@ -143,7 +143,7 @@ public class AWSBucketStorageImplTest {
     }
 
     @Test(expected = BucketStorageServiceException.class)
-    public void getFile_shouldThrowBucketStorageException_whenIOExceptionIsThrown() throws IOException {
+    public void getFile_shouldThrowBucketStorageServiceException_whenIOExceptionIsThrown() throws IOException {
 
         // Arrange
         Mockito.doReturn(getObjectRequest)
@@ -189,7 +189,7 @@ public class AWSBucketStorageImplTest {
     }
 
     @Test
-    public void uploadMultipartFile_shouldThrowBucketStorageException_whenAmazonServiceExceptionIsThrown()
+    public void uploadMultipartFile_shouldThrowBucketStorageServiceException_whenAmazonServiceExceptionIsThrown()
             throws IOException {
 
         // Arrange
@@ -262,7 +262,7 @@ public class AWSBucketStorageImplTest {
 
     private void verifyTransferManagerUploadIsCalledOnce() {
         Mockito.verify(transferManager, VerificationModeFactory.times(1))
-                .upload(anyString(), anyString(), any(File.class));
+                .upload(eq(bucketName), eq(fileName), any(File.class));
     }
 
     private void verifyUploadWaitForCompletionIsCalledOnce() throws InterruptedException {
@@ -277,6 +277,6 @@ public class AWSBucketStorageImplTest {
 
     private void verifyAmazonS3DeleteObjectIsCalledOnce() {
         Mockito.verify(amazonS3, VerificationModeFactory.times(1))
-                .deleteObject(any());
+                .deleteObject(any(DeleteObjectRequest.class));
     }
 }

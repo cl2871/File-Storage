@@ -6,6 +6,6 @@ public final class BucketStorageTypeConstants {
     private BucketStorageTypeConstants() {
     }
 
-    public static final String AWS_S3_STORAGE = "AWS_S3_STORAGE";
-    public static final String GCP_STORAGE = "GCP_STORAGE";
+    public static final String AWS_S3 = "AWS_S3";
+    public static final String GCP = "GCP";
 }

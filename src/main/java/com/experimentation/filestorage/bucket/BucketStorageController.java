@@ -3,7 +3,6 @@ package com.experimentation.filestorage.bucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,18 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/fileStorage")
 public class BucketStorageController {
 
-    private final String awsBucketName;
-    private final String gcpBucketName;
     private final BucketStorageService bucketStorageService;
 
     private static final Logger logger = LoggerFactory.getLogger(BucketStorageController.class);
 
     @Autowired
-    public BucketStorageController(@Value("${app.aws.bucket}") String awsBucketName,
-                                   @Value("${app.gcp.bucket}") String gcpBucketName,
-                                   BucketStorageService bucketStorageService) {
-        this.awsBucketName = awsBucketName;
-        this.gcpBucketName = gcpBucketName;
+    public BucketStorageController(BucketStorageService bucketStorageService) {
         this.bucketStorageService = bucketStorageService;
     }
 

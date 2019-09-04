@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@Component(BucketStorageTypeConstants.GCP_STORAGE)
+@Component(BucketStorageTypeConstants.GCP)
 public class GCPBucketStorageImpl implements BucketStorage {
 
     private Storage storage;
