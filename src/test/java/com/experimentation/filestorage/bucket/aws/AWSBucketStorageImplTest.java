@@ -1,4 +1,4 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.aws;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
@@ -6,6 +6,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
+import com.experimentation.filestorage.bucket.BucketStorageDTO;
+import com.experimentation.filestorage.bucket.util.BucketStorageHelper;
+import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

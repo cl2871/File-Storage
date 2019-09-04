@@ -1,5 +1,6 @@
 package com.experimentation.filestorage.bucket;
 
+import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
