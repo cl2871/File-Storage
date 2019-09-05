@@ -57,7 +57,7 @@ Body: form-data
 	- key: file, value: Example.jpg
 ```
 
-For more information regarding requests you can make to this application, please see [Requests](./documentation/Requests.md).
+**For all the requests you can make to this application, please see [Requests](./documentation/Requests.md).**
 
 
 ## Running the tests
