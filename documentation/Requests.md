@@ -1,6 +1,6 @@
 # Storage Service Requests
 
-Examples of file transfer requests this application handles.
+Examples of HTTP requests you can make to this application to interact with file storage providers.
 
 
 ## AWS S3
