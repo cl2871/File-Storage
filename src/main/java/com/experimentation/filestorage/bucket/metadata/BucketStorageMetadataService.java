@@ -1,4 +1,4 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.metadata;
 
 import org.springframework.http.ResponseEntity;
 

@@ -1,4 +1,4 @@
-package com.experimentation.filestorage.bucket;
+package com.experimentation.filestorage.bucket.metadata;
 
 import com.experimentation.filestorage.audit.AuditModel;
 import org.hibernate.annotations.GenericGenerator;
