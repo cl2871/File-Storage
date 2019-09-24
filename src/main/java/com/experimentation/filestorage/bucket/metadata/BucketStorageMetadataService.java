@@ -14,5 +14,5 @@ public interface BucketStorageMetadataService {
 
     public BucketStorageMetadata updateBucketStorageMetadata(UUID uuid, BucketStorageMetadata bucketStorageMetadata);
 
-    public ResponseEntity deleteBucketStorageMetadata(UUID uuid);
+    public void deleteBucketStorageMetadata(UUID uuid);
 }

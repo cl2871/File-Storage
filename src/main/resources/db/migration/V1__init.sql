@@ -1,5 +1,5 @@
 
-CREATE TABLE filestorage.bucket_storage_metadata
+CREATE TABLE bucket_storage_metadata
 (
   id uuid NOT NULL PRIMARY KEY,
   created_at timestamp with time zone NOT NULL,

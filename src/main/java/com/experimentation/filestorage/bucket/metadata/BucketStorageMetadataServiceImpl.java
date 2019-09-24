@@ -15,7 +15,6 @@ public class BucketStorageMetadataServiceImpl implements BucketStorageMetadataSe
     @Autowired
     BucketStorageMetadataServiceImpl(BucketStorageMetadataRepository bucketStorageMetadataRepository) {
         this.bucketStorageMetadataRepository = bucketStorageMetadataRepository;
-
     }
 
     /**
@@ -65,13 +64,11 @@ public class BucketStorageMetadataServiceImpl implements BucketStorageMetadataSe
     /**
      * Get a BucketStorageMetadata by its id and delete it.
      * @param uuid
-     * @return Response code 200 if delete is successful or a 400-500 level code if delete is unsuccessful
      */
     @Override
-    public ResponseEntity<?> deleteBucketStorageMetadata(UUID uuid) {
-        return bucketStorageMetadataRepository.findById(uuid).map(bucketStorageMetadata -> {
+    public void deleteBucketStorageMetadata(UUID uuid) {
+        bucketStorageMetadataRepository.findById(uuid).ifPresent(bucketStorageMetadata -> {
             bucketStorageMetadataRepository.delete(bucketStorageMetadata);
-            return ResponseEntity.ok().build();
-        }).orElseThrow(() -> new BucketStorageServiceException("Job Application Id " + uuid + " not found"));
+        });
     }
 }
