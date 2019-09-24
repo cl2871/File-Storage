@@ -31,8 +31,12 @@ public class BucketStorageMetadataServiceImpl implements BucketStorageMetadataSe
      * @return One BucketStorageMetadata
      */
     @Override
-    public BucketStorageMetadata getBucketStorageMetadata(UUID uuid) {
-        return bucketStorageMetadataRepository.findById(uuid).orElse(null);
+    public BucketStorageMetadata getBucketStorageMetadata(UUID uuid) throws BucketStorageServiceException {
+        return bucketStorageMetadataRepository
+                .findById(uuid)
+                .orElseThrow(() ->
+                        new BucketStorageServiceException("Unable to find BucketStorageMetadata by UUID")
+                );
     }
 
     /**
