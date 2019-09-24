@@ -1,7 +1,5 @@
 package com.experimentation.filestorage.bucket.metadata;
 
-import org.springframework.http.ResponseEntity;
-
 import java.util.UUID;
 
 public interface BucketStorageMetadataService {

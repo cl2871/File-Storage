@@ -2,7 +2,6 @@ package com.experimentation.filestorage.bucket.metadata;
 
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
