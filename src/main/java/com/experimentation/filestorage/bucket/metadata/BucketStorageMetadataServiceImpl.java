@@ -70,8 +70,8 @@ public class BucketStorageMetadataServiceImpl implements BucketStorageMetadataSe
      */
     @Override
     public void deleteBucketStorageMetadata(UUID uuid) {
-        bucketStorageMetadataRepository.findById(uuid).ifPresent(bucketStorageMetadata -> {
-            bucketStorageMetadataRepository.delete(bucketStorageMetadata);
-        });
+        bucketStorageMetadataRepository.findById(uuid).ifPresent(bucketStorageMetadata ->
+            bucketStorageMetadataRepository.delete(bucketStorageMetadata)
+        );
     }
 }
