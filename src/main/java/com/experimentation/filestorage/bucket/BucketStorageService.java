@@ -12,8 +12,12 @@ public class BucketStorageService {
 
     Logger logger = LoggerFactory.getLogger(BucketStorageService.class);
 
+    private final BucketStorageFactory bucketStorageFactory;
+
     @Autowired
-    private BucketStorageFactory bucketStorageFactory;
+    public BucketStorageService(BucketStorageFactory bucketStorageFactory) {
+        this.bucketStorageFactory = bucketStorageFactory;
+    }
 
     public BucketStorageDTO doGetFile(String bucketName, String fileName, BucketStorageType bucketStorageType)
             throws BucketStorageServiceException {

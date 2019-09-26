@@ -1,47 +1,42 @@
 package com.experimentation.filestorage.bucket;
 
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {BucketStorageService.class})
+/**
+ * Unit test for the BucketStorageService class
+ */
 public class BucketStorageServiceTest {
 
-    @Autowired
-    private BucketStorageService bucketStorageService;
+    // Class under test
+    private static BucketStorageService bucketStorageService;
 
-    @MockBean
-    private BucketStorageFactory bucketStorageFactory;
-
-    @MockBean
-    private BucketStorageDTO bucketStorageDTO;
-
-    @MockBean
-    private BucketStorage bucketStorage;
-
-    @MockBean
-    private MultipartFile multipartFile;
+    // Mocks
+    private static BucketStorageFactory bucketStorageFactory;
+    private static BucketStorageDTO bucketStorageDTO;
+    private static BucketStorage bucketStorage;
+    private static MultipartFile multipartFile;
 
     // Final classes
-    private String bucketName;
-    private String fileName;
-    private BucketStorageType bucketStorageType;
+    private String bucketName = "example-bucket";
+    private String fileName = "test.jpg";
+    private BucketStorageType bucketStorageType = BucketStorageType.AWS_S3;
 
-    @Before
-    public void setUp() throws Exception {
-        bucketName = "example-bucket";
-        fileName = "test.jpg";
-        bucketStorageType = BucketStorageType.AWS_S3;
+    @BeforeClass
+    public static void setUp() {
+
+        // Create a BucketStorageFactory mock to be passed into the bucketStorageService
+        bucketStorageFactory = Mockito.mock(BucketStorageFactory.class);
+        bucketStorageService = new BucketStorageService(bucketStorageFactory);
+
+        bucketStorageDTO = Mockito.mock(BucketStorageDTO.class);
+        bucketStorage = Mockito.mock(BucketStorage.class);
+        multipartFile = Mockito.mock(MultipartFile.class);
     }
 
     @Test
@@ -72,6 +67,9 @@ public class BucketStorageServiceTest {
 
         // Act
         bucketStorageService.doGetFile(bucketName, fileName, bucketStorageType);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test
@@ -96,6 +94,9 @@ public class BucketStorageServiceTest {
 
         // Act
         bucketStorageService.doUploadMultipartFile(bucketName, fileName, multipartFile, bucketStorageType);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test
@@ -120,5 +121,8 @@ public class BucketStorageServiceTest {
 
         // Act
         bucketStorageService.doDeleteFile(bucketName, fileName, bucketStorageType);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 }
