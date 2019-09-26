@@ -22,10 +22,10 @@ public class BucketStorageServiceTest {
     private static BucketStorage bucketStorage;
     private static MultipartFile multipartFile;
 
-    // Final classes
-    private String bucketName = "example-bucket";
-    private String fileName = "test.jpg";
-    private BucketStorageType bucketStorageType = BucketStorageType.AWS_S3;
+    // Variables to have initialized values (e.g. final classes)
+    private static String bucketName;
+    private static String fileName;
+    private static BucketStorageType bucketStorageType;
 
     @BeforeClass
     public static void setUp() {
@@ -34,9 +34,15 @@ public class BucketStorageServiceTest {
         bucketStorageFactory = Mockito.mock(BucketStorageFactory.class);
         bucketStorageService = new BucketStorageService(bucketStorageFactory);
 
+        // Mocks
         bucketStorageDTO = Mockito.mock(BucketStorageDTO.class);
         bucketStorage = Mockito.mock(BucketStorage.class);
         multipartFile = Mockito.mock(MultipartFile.class);
+
+        // Initialize values for testing
+        bucketName = "example-bucket";
+        fileName = "test.jpg";
+        bucketStorageType = BucketStorageType.AWS_S3;
     }
 
     @Test
