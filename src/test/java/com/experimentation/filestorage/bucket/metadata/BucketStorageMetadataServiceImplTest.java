@@ -15,6 +15,9 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
+/**
+ * Unit test for BucketStorageMetadataServiceImpl class
+ */
 public class BucketStorageMetadataServiceImplTest {
 
     // Class under test

@@ -11,6 +11,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Unit test for RandomBucketStorageProviderRule class
+ */
 public class RandomBucketStorageProviderRuleTest {
 
     // Class under test
