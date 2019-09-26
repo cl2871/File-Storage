@@ -13,7 +13,7 @@ public abstract class BaseBucketStorageProviderRule implements BucketStorageProv
      * The chooseProvider(provider) method will attempt to return a BucketStorageType based on the provided string.
      * If a corresponding BucketStorageType can not be chosen, a BucketStorageServiceException will be thrown.
      * @param provider
-     * @return
+     * @return BucketStorageType instance
      */
     @Override
     public BucketStorageType chooseProvider(String provider) throws BucketStorageServiceException {

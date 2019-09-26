@@ -8,12 +8,16 @@ public class RandomBucketStorageProviderRule extends BaseBucketStorageProviderRu
 
     /**
      * RandomBucketStorageProviderRule will return a random provider from the list of BucketStorageTypes.
-     * @return
+     * @return BucketStorageType instance
      */
     @Override
     public BucketStorageType chooseProvider() {
         BucketStorageType[] bucketStorageTypes = BucketStorageType.class.getEnumConstants();
-        int randomNum = ThreadLocalRandom.current().nextInt(0, bucketStorageTypes.length);
+        int randomNum = getRandomNum(bucketStorageTypes.length);
         return bucketStorageTypes[randomNum];
+    }
+
+    protected int getRandomNum(int upperBound) {
+        return ThreadLocalRandom.current().nextInt(0, upperBound);
     }
 }
