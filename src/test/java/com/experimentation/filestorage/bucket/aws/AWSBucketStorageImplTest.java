@@ -9,15 +9,11 @@ import com.amazonaws.services.s3.transfer.Upload;
 import com.experimentation.filestorage.bucket.BucketStorageDTO;
 import com.experimentation.filestorage.bucket.util.BucketStorageHelper;
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
-import org.junit.Before;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,68 +24,74 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {AWSBucketStorageImpl.class})
+/**
+ * Unit test for AWSBucketStorageImpl class
+ */
 public class AWSBucketStorageImplTest {
 
-    @Autowired
-    private AWSBucketStorageImpl awsBucketStorageService;
+    // Class under test
+    private static AWSBucketStorageImpl awsBucketStorageService;
 
-    @MockBean
-    private AmazonS3 amazonS3;
+    // Mocks
+    private static AmazonS3 amazonS3;
+    private static AWSBucketStorageHelper awsBucketStorageHelper;
+    private static BucketStorageHelper bucketStorageHelper;
+    private static S3Object s3Object;
+    private static GetObjectRequest getObjectRequest;
+    private static DeleteObjectRequest deleteObjectRequest;
+    private static ObjectMetadata objectMetadata;
+    private static S3ObjectInputStream s3ObjectInputStream;
+    private static BucketStorageDTO bucketStorageDTO;
+    private static TransferManager transferManager;
+    private static MultipartFile multipartFile;
+    private static File file;
+    private static Upload upload;
 
-    @MockBean
-    private AWSBucketStorageHelper awsBucketStorageHelper;
+    // Final classes to be initialized with values
+    private static String bucketName;
+    private static String fileName;
+    private static String contentType;
+    private static byte[] bytes;
+    private static boolean tempFileDeletedTrue;
+    private static boolean tempFileDeletedFalse;
 
-    @MockBean
-    private BucketStorageHelper bucketStorageHelper;
+    @BeforeClass
+    public static void setUp() {
 
-    @MockBean
-    private S3Object s3Object;
+        // Inject mocks into awsBucketStorageService
+        amazonS3 = Mockito.mock(AmazonS3.class);
+        awsBucketStorageHelper = Mockito.mock(AWSBucketStorageHelper.class);
+        bucketStorageHelper = Mockito.mock(BucketStorageHelper.class);
+        awsBucketStorageService = new AWSBucketStorageImpl(amazonS3, awsBucketStorageHelper, bucketStorageHelper);
 
-    @MockBean
-    private GetObjectRequest getObjectRequest;
+        // Mocks
+        s3Object = Mockito.mock(S3Object.class);
+        getObjectRequest = Mockito.mock(GetObjectRequest.class);
+        deleteObjectRequest = Mockito.mock(DeleteObjectRequest.class);
+        objectMetadata = Mockito.mock(ObjectMetadata.class);
+        s3ObjectInputStream = Mockito.mock(S3ObjectInputStream.class);
+        bucketStorageDTO = Mockito.mock(BucketStorageDTO.class);
+        transferManager = Mockito.mock(TransferManager.class);
+        multipartFile = Mockito.mock(MultipartFile.class);
+        file = Mockito.mock(File.class);
+        upload = Mockito.mock(Upload.class);
 
-    @MockBean
-    private DeleteObjectRequest deleteObjectRequest;
-
-    @MockBean
-    private ObjectMetadata objectMetadata;
-
-    @MockBean
-    private S3ObjectInputStream s3ObjectInputStream;
-
-    @MockBean
-    private BucketStorageDTO bucketStorageDTO;
-
-    @MockBean
-    private TransferManager transferManager;
-
-    @MockBean
-    private MultipartFile multipartFile;
-
-    @MockBean
-    private File file;
-
-    @MockBean
-    private Upload upload;
-
-    // Final classes
-    private String bucketName;
-    private String fileName;
-    private String contentType;
-    private byte[] bytes;
-    private boolean tempFileDeletedTrue;
-    private boolean tempFileDeletedFalse;
-
-    @Before
-    public void setUp() throws Exception {
+        // Initialize values for testing
         bucketName = "example";
         fileName = "test.txt";
         contentType = MimeTypeUtils.TEXT_PLAIN_VALUE;
         bytes = "Some example test".getBytes();
         tempFileDeletedTrue = true;
         tempFileDeletedFalse = true;
+    }
+
+    @After
+    public void tearDown() {
+        // Reset following static mocks to ensure verify methods are correct in each test
+        Mockito.reset(amazonS3);
+        Mockito.reset(transferManager);
+        Mockito.reset(file);
+        Mockito.reset(upload);
     }
 
     @Test
@@ -130,6 +132,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.getFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -143,6 +148,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.getFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -164,6 +172,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.getFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test
@@ -243,6 +254,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.deleteFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -256,6 +270,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.deleteFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     private void verifyGetObjectIsCalledOnce() {

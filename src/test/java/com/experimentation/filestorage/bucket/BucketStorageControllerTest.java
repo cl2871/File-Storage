@@ -1,7 +1,7 @@
 package com.experimentation.filestorage.bucket;
 
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -33,19 +33,20 @@ public class BucketStorageControllerTest {
     @MockBean
     private MultipartFile multipartFile;
 
+    // Classes to have initialized values
     // Final classes
-    private String baseUrl;
-    private String bucketName;
-    private String fileName;
-    private MediaType mediaType;
-    private byte[] content;
+    private static String baseUrl;
+    private static String bucketName;
+    private static String fileName;
+    private static MediaType mediaType;
+    private static byte[] content;
 
     // Other classes
-    private BucketStorageDTO bucketStorageDTO;
-    private MockPart requestPart;
+    private static BucketStorageDTO bucketStorageDTO;
+    private static MockPart requestPart;
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() {
         baseUrl = "/api/fileStorage";
 
         fileName = "example.txt";
