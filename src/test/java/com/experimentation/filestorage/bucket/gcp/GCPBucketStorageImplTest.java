@@ -8,15 +8,11 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
-import org.junit.Before;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,52 +21,64 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {GCPBucketStorageImpl.class})
+/**
+ * Unit test for the GCPBucketStorageImpl class
+ */
 public class GCPBucketStorageImplTest {
 
-    @Autowired
-    private GCPBucketStorageImpl gcpBucketStorageService;
+    // Class under test
+    private static GCPBucketStorageImpl gcpBucketStorageService;
 
-    @MockBean
-    private Storage storage;
+    // Mocks
+    private static Storage storage;
+    private static GCPBucketStorageHelper gcpBucketStorageHelper;
+    private static BucketStorageHelper bucketStorageHelper;
+    private static MultipartFile multipartFile;
 
-    @MockBean
-    private GCPBucketStorageHelper gcpBucketStorageHelper;
-
-    @MockBean
-    private BucketStorageHelper bucketStorageHelper;
-
-    @MockBean
-    private MultipartFile multipartFile;
-
-    // Final classes
-    private String bucketName;
-    private String fileName;
-    private BlobId blobId;
-    private String contentType;
-    private byte[] content;
-    private boolean deletedTrue;
-    private boolean deletedFalse;
+    // Final classes to have values initialized
+    private static String bucketName;
+    private static String fileName;
+    private static BlobId blobId;
+    private static String contentType;
+    private static byte[] content;
+    private static boolean deletedTrue;
+    private static boolean deletedFalse;
 
     // Other fields to initialize
-    private BucketStorageDTO bucketStorageDTO;
-    private BlobInfo blobInfo;
-    private Blob blob;
+    private static BucketStorageDTO bucketStorageDTO;
+    private static BlobInfo blobInfo;
+    private static Blob blob;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() {
+
+        // Inject mocks into the gcpBucketStorageService
+        storage = Mockito.mock(Storage.class);
+        gcpBucketStorageHelper = Mockito.mock(GCPBucketStorageHelper.class);
+        bucketStorageHelper = Mockito.mock(BucketStorageHelper.class);
+        gcpBucketStorageService = new GCPBucketStorageImpl(storage, gcpBucketStorageHelper, bucketStorageHelper);
+
+        // Mocks
+        multipartFile = Mockito.mock(MultipartFile.class);
+
+        // Initialize values for testing
         bucketName = "example";
         fileName = "test.txt";
         blobId = BlobId.of(bucketName, fileName);
         contentType = MimeTypeUtils.TEXT_PLAIN_VALUE;
         content = "Example text".getBytes();
+        deletedTrue = true;
+        deletedFalse = false;
 
         bucketStorageDTO = new BucketStorageDTO(fileName, contentType, content);
         blobInfo = Mockito.mock(BlobInfo.class);
         blob = Mockito.mock(Blob.class);
-        deletedTrue = true;
-        deletedFalse = false;
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        // Reset following static mocks to ensure verify methods are correct in each test
+        Mockito.reset(storage);
     }
 
     @Test
@@ -111,6 +119,9 @@ public class GCPBucketStorageImplTest {
 
         // Act
         gcpBucketStorageService.getFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -124,6 +135,9 @@ public class GCPBucketStorageImplTest {
 
         // Act
         gcpBucketStorageService.getFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test
@@ -165,6 +179,9 @@ public class GCPBucketStorageImplTest {
 
         // Act
         gcpBucketStorageService.uploadMultipartFile(bucketName, fileName, multipartFile);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -185,6 +202,9 @@ public class GCPBucketStorageImplTest {
 
         // Act
         gcpBucketStorageService.uploadMultipartFile(bucketName, fileName, multipartFile);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test
@@ -214,6 +234,9 @@ public class GCPBucketStorageImplTest {
 
         // Act
         gcpBucketStorageService.deleteFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -227,6 +250,9 @@ public class GCPBucketStorageImplTest {
 
         // Act
         gcpBucketStorageService.deleteFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     private void verifyStorageGetIsCalledOnce() {

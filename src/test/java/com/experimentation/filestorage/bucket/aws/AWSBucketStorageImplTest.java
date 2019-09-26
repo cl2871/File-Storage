@@ -132,6 +132,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.getFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -145,6 +148,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.getFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -166,6 +172,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.getFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test
@@ -245,6 +254,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.deleteFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     @Test(expected = BucketStorageServiceException.class)
@@ -258,6 +270,9 @@ public class AWSBucketStorageImplTest {
 
         // Act
         awsBucketStorageService.deleteFile(bucketName, fileName);
+
+        // Assert
+        // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
     private void verifyGetObjectIsCalledOnce() {
