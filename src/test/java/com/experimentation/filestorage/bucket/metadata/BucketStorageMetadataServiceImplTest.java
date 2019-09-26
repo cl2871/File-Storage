@@ -2,15 +2,11 @@ package com.experimentation.filestorage.bucket.metadata;
 
 import com.experimentation.filestorage.bucket.BucketStorageTypeConstants;
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
-import org.junit.Before;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,36 +15,46 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {BucketStorageMetadataServiceImpl.class})
 public class BucketStorageMetadataServiceImplTest {
 
-    @Autowired
-    private BucketStorageMetadataServiceImpl bucketStorageMetadataService;
+    // Class under test
+    private static BucketStorageMetadataServiceImpl bucketStorageMetadataService;
 
-    @MockBean
-    private BucketStorageMetadataRepository bucketStorageMetadataRepository;
+    // Mocks
+    private static BucketStorageMetadataRepository bucketStorageMetadataRepository;
+    private static List<BucketStorageMetadata> bucketStorageMetadataList;
+    private static BucketStorageMetadata bucketStorageMetadata;
 
-    @MockBean
-    private List<BucketStorageMetadata> bucketStorageMetadataList;
+    // Final classes to be initialized
+    private static Optional<BucketStorageMetadata> bucketStorageMetadataOptional;
+    private static Optional<BucketStorageMetadata> bucketStorageMetadataOptionalNull;
+    private static UUID uuid;
+    private static String storageProvider;
+    private static String storageLocation;
 
-    @MockBean
-    private BucketStorageMetadata bucketStorageMetadata;
+    @BeforeClass
+    public static void setUp() {
 
-    private Optional<BucketStorageMetadata> bucketStorageMetadataOptional;
-    private Optional<BucketStorageMetadata> bucketStorageMetadataOptionalNull;
-    private UUID uuid;
-    private String storageProvider;
-    private String storageLocation;
+        // Inject mock into class under test
+        bucketStorageMetadataRepository = Mockito.mock(BucketStorageMetadataRepository.class);
+        bucketStorageMetadataService = new BucketStorageMetadataServiceImpl(bucketStorageMetadataRepository);
 
-    @Before
-    public void setUp() {
+        // Mocks
+        bucketStorageMetadataList = Mockito.mock(List.class);
+        bucketStorageMetadata = Mockito.mock(BucketStorageMetadata.class);
+
         // Optional of mocked BucketStorageMetadata
         bucketStorageMetadataOptional = Optional.of(bucketStorageMetadata);
         bucketStorageMetadataOptionalNull = Optional.empty();
         uuid = UUID.randomUUID();
         storageProvider = BucketStorageTypeConstants.AWS_S3;
         storageLocation = "example-bucket";
+    }
+
+    @After
+    public void tearDown() {
+        // Reset following static mocks to ensure verify methods are correct in each test
+        Mockito.reset(bucketStorageMetadataRepository);
     }
 
     @Test

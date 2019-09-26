@@ -35,7 +35,7 @@ public class BucketStorageControllerTest {
 
     // Classes to have initialized values
     // Final classes
-    private static  String baseUrl;
+    private static String baseUrl;
     private static String bucketName;
     private static String fileName;
     private static MediaType mediaType;
