@@ -1,14 +1,16 @@
 package com.experimentation.filestorage.bucket;
 
+import java.io.InputStream;
+
 public class BucketStorageDTO {
 
     private String fileName;
 
     private String contentType;
 
-    private byte[] data;
+    private InputStream data;
 
-    public BucketStorageDTO(String fileName, String contentType, byte[] data) {
+    public BucketStorageDTO(String fileName, String contentType, InputStream data) {
         this.fileName = fileName;
         this.contentType = contentType;
         this.data = data;
@@ -22,7 +24,7 @@ public class BucketStorageDTO {
         return contentType;
     }
 
-    public byte[] getData() {
+    public InputStream getData() {
         return data;
     }
 }
