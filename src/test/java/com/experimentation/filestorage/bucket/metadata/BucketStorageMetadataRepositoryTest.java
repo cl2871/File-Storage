@@ -30,12 +30,14 @@ public class BucketStorageMetadataRepositoryTest {
     private BucketStorageMetadataRepository bucketStorageMetadataRepository;
 
     private String storageProvider;
-    private String storageLocation;
+    private String bucketName;
+    private String keyName;
 
     @Before
     public void setUp() {
         storageProvider = BucketStorageTypeConstants.AWS_S3;
-        storageLocation = "example-bucket";
+        bucketName = "example-bucket";
+        keyName = "example-file";
     }
 
     @Test
@@ -44,7 +46,8 @@ public class BucketStorageMetadataRepositoryTest {
         // Arrange
         // Create a BucketStorageMetadata object and save it (UUID and auditing fields will be generated when saved)
         BucketStorageMetadata bucketStorageMetadata = new BucketStorageMetadata();
-        bucketStorageMetadata.setStorageLocation(storageLocation);
+        bucketStorageMetadata.setBucketName(bucketName);
+        bucketStorageMetadata.setKeyName(keyName);
         bucketStorageMetadata.setStorageProvider(storageProvider);
         testEntityManager.persistAndFlush(bucketStorageMetadata);
 
@@ -53,7 +56,8 @@ public class BucketStorageMetadataRepositoryTest {
         Optional<BucketStorageMetadata> entity = bucketStorageMetadataRepository.findById(uuid);
 
         // Assert
-        assertThat(storageLocation).isEqualTo(entity.get().getStorageLocation());
+        assertThat(bucketName).isEqualTo(entity.get().getBucketName());
+        assertThat(keyName).isEqualTo(entity.get().getKeyName());
         assertThat(storageProvider).isEqualTo(entity.get().getStorageProvider());
     }
 }

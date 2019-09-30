@@ -59,7 +59,8 @@ public class BucketStorageMetadataServiceImpl implements BucketStorageMetadataSe
     public BucketStorageMetadata updateBucketStorageMetadata(UUID uuid, BucketStorageMetadata bucketStorageMetadata) {
         return bucketStorageMetadataRepository.findById(uuid).map(oldBucketStorageMetadata -> {
             oldBucketStorageMetadata.setStorageProvider(bucketStorageMetadata.getStorageProvider());
-            oldBucketStorageMetadata.setStorageLocation(bucketStorageMetadata.getStorageLocation());
+            oldBucketStorageMetadata.setKeyName(bucketStorageMetadata.getKeyName());
+            oldBucketStorageMetadata.setBucketName(bucketStorageMetadata.getBucketName());
             return bucketStorageMetadataRepository.save(oldBucketStorageMetadata);
         }).orElseThrow(() -> new BucketStorageServiceException("BucketStorageMetadata Id " + uuid + " not found"));
     }

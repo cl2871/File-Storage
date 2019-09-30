@@ -33,7 +33,8 @@ public class BucketStorageMetadataServiceImplTest {
     private static Optional<BucketStorageMetadata> bucketStorageMetadataOptionalNull;
     private static UUID uuid;
     private static String storageProvider;
-    private static String storageLocation;
+    private static String bucketName;
+    private static String keyName;
 
     @BeforeClass
     public static void setUp() {
@@ -51,7 +52,8 @@ public class BucketStorageMetadataServiceImplTest {
         bucketStorageMetadataOptionalNull = Optional.empty();
         uuid = UUID.randomUUID();
         storageProvider = BucketStorageTypeConstants.AWS_S3;
-        storageLocation = "example-bucket";
+        bucketName = "example-bucket";
+        keyName = "example-file";
     }
 
     @After
@@ -131,7 +133,8 @@ public class BucketStorageMetadataServiceImplTest {
         // bucketStorageMetadataUpdated acts as incoming request with updated values
         BucketStorageMetadata bucketStorageMetadataUpdated = new BucketStorageMetadata();
         bucketStorageMetadataUpdated.setStorageProvider(storageProvider);
-        bucketStorageMetadataUpdated.setStorageLocation(storageLocation);
+        bucketStorageMetadataUpdated.setBucketName(bucketName);
+        bucketStorageMetadataUpdated.setKeyName(keyName);
 
         // bucketStorageMetadata will be retrieved from db, updated, then saved back to the db
         Mockito.doReturn(Optional.of(bucketStorageMetadataOld))
@@ -146,7 +149,8 @@ public class BucketStorageMetadataServiceImplTest {
         // Assert
         // savedBucketStorageMetadata should have the new values
         assertThat(storageProvider).isEqualTo(savedBucketStorageMetadata.getStorageProvider());
-        assertThat(storageLocation).isEqualTo(savedBucketStorageMetadata.getStorageLocation());
+        assertThat(bucketName).isEqualTo(savedBucketStorageMetadata.getBucketName());
+        assertThat(keyName).isEqualTo(savedBucketStorageMetadata.getKeyName());
         verifyFindByIdIsCalledOnce();
         verifySaveIsCalledOnce();
     }

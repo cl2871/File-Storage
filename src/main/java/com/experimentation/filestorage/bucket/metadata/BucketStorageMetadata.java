@@ -21,8 +21,12 @@ public class BucketStorageMetadata extends AuditModel {
     private String storageProvider;
 
     @NotBlank
-    @Column(name = "storage_location")
-    private String storageLocation;
+    @Column(name = "key_name")
+    private String keyName;
+
+    @NotBlank
+    @Column(name = "bucket_name")
+    private String bucketName;
 
     public UUID getId() {
         return id;
@@ -40,11 +44,19 @@ public class BucketStorageMetadata extends AuditModel {
         this.storageProvider = storageProvider;
     }
 
-    public String getStorageLocation() {
-        return storageLocation;
+    public String getKeyName() {
+        return keyName;
     }
 
-    public void setStorageLocation(String storageLocation) {
-        this.storageLocation = storageLocation;
+    public void setKeyName(String keyName) {
+        this.keyName = keyName;
+    }
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
     }
 }
