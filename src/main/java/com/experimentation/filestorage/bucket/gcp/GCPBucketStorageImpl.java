@@ -6,6 +6,7 @@ import com.experimentation.filestorage.bucket.util.BucketStorageHelper;
 import com.experimentation.filestorage.bucket.util.BucketStorageLoggerUtil;
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import com.google.cloud.BaseServiceException;
+import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 
 @Component(BucketStorageTypeConstants.GCP)
 public class GCPBucketStorageImpl implements BucketStorage {
@@ -40,8 +44,10 @@ public class GCPBucketStorageImpl implements BucketStorage {
 
         try {
             Blob blob = storage.get(gcpBucketStorageHelper.createBlobId(bucketName, fileName));
+            InputStream inputStream = gcpBucketStorageHelper.createInputStreamFromBlob(blob);
+
             BucketStorageLoggerUtil.infoFinishGettingFile(logger, bucketName, fileName);
-            return bucketStorageHelper.createBucketStorageDTO(fileName, blob.getContentType(), blob.getContent());
+            return bucketStorageHelper.createBucketStorageDTO(fileName, blob.getContentType(), inputStream);
         }
 
         // Returned blob is null; no file was found
@@ -70,17 +76,15 @@ public class GCPBucketStorageImpl implements BucketStorage {
         BlobId blobId = gcpBucketStorageHelper.createBlobId(bucketName, fileName);
         BlobInfo blobInfo = gcpBucketStorageHelper.createBlobInfo(blobId, multipartFile.getContentType());
 
-        try {
-            storage.create(blobInfo, multipartFile.getBytes());
+        try (WriteChannel writer = storage.writer(blobInfo)) {
+            gcpBucketStorageHelper.copyInputStreamToOutputStreamFromWriteChannel(multipartFile, writer);
             BucketStorageLoggerUtil.infoFinishUploadingFile(logger, bucketName, fileName);
         }
 
-        // Unable to read multipart file for upload
+        // Unable to get InputStream or close the WriteChannel
         catch(IOException e) {
             logger.error(e.getMessage());
-            throw new BucketStorageServiceException(
-                    BucketStorageExceptionUtil.setMessageUnableToReadFileForUpload(fileName)
-            );
+            throw new BucketStorageServiceException("Issue writing data from InputStream or closing writer");
         }
 
         // Google Cloud extension of RuntimeException

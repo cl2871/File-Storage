@@ -3,6 +3,7 @@ package com.experimentation.filestorage.bucket.aws;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.transfer.TransferManager;
@@ -18,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
 
 @Component(BucketStorageTypeConstants.AWS_S3)
 public class AWSBucketStorageImpl implements BucketStorage {
@@ -45,19 +44,13 @@ public class AWSBucketStorageImpl implements BucketStorage {
 
         BucketStorageLoggerUtil.infoStartGettingFile(logger, bucketName, fileName);
 
-        // Try-with-resources for the S3Object
-        try (S3Object s3Object = amazonS3.getObject(awsBucketStorageHelper.newGetObjectRequest(bucketName, fileName))){
-
+        try {
+            S3Object s3Object = amazonS3.getObject(awsBucketStorageHelper.newGetObjectRequest(bucketName, fileName));
             String contentType = s3Object.getObjectMetadata().getContentType();
             S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
 
-            byte[] bytes = awsBucketStorageHelper.convertS3ObjectInputStreamToByteArray(objectInputStream);
-
-            // Note: encoder converts a space to a plus, so we replace the pluses with %20 for content disposition
-            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
-
             BucketStorageLoggerUtil.infoFinishGettingFile(logger, bucketName, fileName);
-            return bucketStorageHelper.createBucketStorageDTO(fileName, contentType, bytes);
+            return bucketStorageHelper.createBucketStorageDTO(fileName, contentType, objectInputStream);
         }
 
         // Upload call was transmitted successfully, but Amazon S3 couldn't process it
@@ -75,29 +68,20 @@ public class AWSBucketStorageImpl implements BucketStorage {
                     BucketStorageExceptionUtil.setMessageUnableToGetFile(bucketName, fileName)
             );
         }
-
-        // Could not convert S3ObjectInputStream to byte array
-        catch(IOException e) {
-            logger.error(e.getMessage());
-            throw new BucketStorageServiceException(
-                    BucketStorageExceptionUtil.setMessageUnableToConvertInputStream(fileName)
-            );
-        }
     }
 
     @Override
-    public void uploadMultipartFile(String bucketName, String fileName, MultipartFile file) throws BucketStorageServiceException {
+    public void uploadMultipartFile(String bucketName, String fileName, MultipartFile multipartFile) throws BucketStorageServiceException {
 
         BucketStorageLoggerUtil.infoStartUploadingFile(logger, bucketName, fileName);
 
-        File tempFile = null;
-
         try {
             TransferManager transferManager = awsBucketStorageHelper.buildTransferManager(amazonS3);
-            tempFile = awsBucketStorageHelper.convertMultipartFileToTemporaryFile(file);
+            ObjectMetadata objectMetadata = awsBucketStorageHelper.createObjectMetadata(multipartFile);
 
             // TransferManager processes all transfers asynchronously, so the upload call returns immediately
-            Upload upload = transferManager.upload(bucketName, fileName, tempFile);
+            Upload upload = transferManager
+                    .upload(bucketName, fileName, multipartFile.getInputStream(), objectMetadata);
 
             // We wait for the upload to finish before continuing.
             upload.waitForCompletion();
@@ -128,19 +112,10 @@ public class AWSBucketStorageImpl implements BucketStorage {
             );
         }
 
-        // Unable to create a temporary file for upload
+        // Unable to get InputStream
         catch(IOException e) {
             logger.error(e.getMessage());
-            throw new BucketStorageServiceException(
-                    BucketStorageExceptionUtil.setMessageUnableToCreateTempFileOrReadContent(fileName)
-            );
-        }
-
-        // Clean up by removing temp file
-        finally {
-            if (tempFile != null) {
-                tempFile.delete();
-            }
+            throw new BucketStorageServiceException("Unable to get InputStream while uploading file");
         }
     }
 

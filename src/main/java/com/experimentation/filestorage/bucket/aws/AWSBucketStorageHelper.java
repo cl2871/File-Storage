@@ -3,6 +3,7 @@ package com.experimentation.filestorage.bucket.aws;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
@@ -25,10 +26,6 @@ public class AWSBucketStorageHelper {
         return new DeleteObjectRequest(bucketName, fileName);
     }
 
-    protected byte[] convertS3ObjectInputStreamToByteArray(S3ObjectInputStream s3ObjectInputStream) throws IOException {
-        return IOUtils.toByteArray(s3ObjectInputStream);
-    }
-
     protected TransferManager buildTransferManager(AmazonS3 amazonS3) {
         return TransferManagerBuilder.standard()
                 .withS3Client(amazonS3)
@@ -36,22 +33,14 @@ public class AWSBucketStorageHelper {
     }
 
     /**
-     * Converts a MultipartFile object into a temporary File object.
-     *
+     * Returns an (AWS S3) ObjectMetadata object with contentType and contentLength
      * @param multipartFile
-     * @return convertedFile
-     * @throws IOException
+     * @return objectMetadata
      */
-    protected File convertMultipartFileToTemporaryFile(MultipartFile multipartFile) throws IOException {
-
-        // Create a temp file
-        File convertedFile = File.createTempFile("temp-", null);
-
-        // Write the bytes of the multipart
-        FileOutputStream fos = new FileOutputStream(convertedFile);
-        fos.write(multipartFile.getBytes());
-        fos.close();
-
-        return convertedFile;
+    protected ObjectMetadata createObjectMetadata(MultipartFile multipartFile) {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType(multipartFile.getContentType());
+        objectMetadata.setContentLength(multipartFile.getSize());
+        return objectMetadata;
     }
 }

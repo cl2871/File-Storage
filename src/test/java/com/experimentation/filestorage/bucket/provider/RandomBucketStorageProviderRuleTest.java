@@ -3,39 +3,42 @@ package com.experimentation.filestorage.bucket.provider;
 import com.experimentation.filestorage.bucket.BucketStorageType;
 import com.experimentation.filestorage.bucket.BucketStorageTypeConstants;
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {RandomBucketStorageProviderRule.class})
+/**
+ * Unit test for RandomBucketStorageProviderRule class
+ */
 public class RandomBucketStorageProviderRuleTest {
 
-    @Autowired
-    private RandomBucketStorageProviderRule randomBucketStorageProviderRule;
+    // Class under test
+    private static RandomBucketStorageProviderRule randomBucketStorageProviderRule;
 
-    @MockBean
-    private ThreadLocalRandom threadLocalRandom;
+    // Mocks
+    private static ThreadLocalRandom threadLocalRandom;
 
-    // final classes
-    private String bucketStorageProviderValid;
-    private String bucketStorageProviderInvalid;
+    // Final classes to be initialized
+    private static String bucketStorageProviderValid;
+    private static String bucketStorageProviderInvalid;
 
-    // other classes
-    private BucketStorageType bucketStorageType;
+    // Other classes to be initialized
+    private static BucketStorageType bucketStorageType;
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() {
 
+        // Instantiate class under test
+        randomBucketStorageProviderRule = new RandomBucketStorageProviderRule();
+
+        // Mocks
+        threadLocalRandom = Mockito.mock(ThreadLocalRandom.class);
+
+        // Initialize values for testing
         bucketStorageProviderValid = BucketStorageTypeConstants.AWS_S3;
         bucketStorageProviderInvalid = "FRUIT_PROVIDER";
 
