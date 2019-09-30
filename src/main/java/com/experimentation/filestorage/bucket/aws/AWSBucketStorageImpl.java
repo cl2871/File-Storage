@@ -44,9 +44,8 @@ public class AWSBucketStorageImpl implements BucketStorage {
 
         BucketStorageLoggerUtil.infoStartGettingFile(logger, bucketName, fileName);
 
-        // Try-with-resources for the S3Object
-        try (S3Object s3Object = amazonS3.getObject(awsBucketStorageHelper.newGetObjectRequest(bucketName, fileName))){
-
+        try {
+            S3Object s3Object = amazonS3.getObject(awsBucketStorageHelper.newGetObjectRequest(bucketName, fileName));
             String contentType = s3Object.getObjectMetadata().getContentType();
             S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
 
@@ -68,12 +67,6 @@ public class AWSBucketStorageImpl implements BucketStorage {
             throw new BucketStorageServiceException(
                     BucketStorageExceptionUtil.setMessageUnableToGetFile(bucketName, fileName)
             );
-        }
-
-        // S3Object implements Closable interface, and the close method throws IOException
-        catch(IOException e) {
-            logger.error(e.getMessage());
-            throw new BucketStorageServiceException("Unable to close the Closable object");
         }
     }
 

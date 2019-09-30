@@ -151,30 +151,6 @@ public class AWSBucketStorageImplTest {
         // Test annotation expects a BucketStorageServiceException to be thrown
     }
 
-    @Test(expected = BucketStorageServiceException.class)
-    public void getFile_shouldThrowBucketStorageServiceException_whenIOExceptionIsThrown() throws IOException {
-
-        // Arrange
-        Mockito.doReturn(getObjectRequest)
-                .when(awsBucketStorageHelper).newGetObjectRequest(bucketName, fileName);
-        Mockito.doReturn(s3Object)
-                .when(amazonS3).getObject(getObjectRequest);
-        Mockito.doReturn(objectMetadata)
-                .when(s3Object).getObjectMetadata();
-        Mockito.doReturn(contentType)
-                .when(objectMetadata).getContentType();
-        Mockito.doReturn(s3ObjectInputStream)
-                .when(s3Object).getObjectContent();
-        Mockito.doThrow(IOException.class)
-                .when(s3Object).close();
-
-        // Act
-        awsBucketStorageService.getFile(bucketName, fileName);
-
-        // Assert
-        // Test annotation expects a BucketStorageServiceException to be thrown
-    }
-
     @Test
     public void uploadMultipartFile_shouldCompleteUpload_whenBucketNameAndFileNameAndMultipartFileAreGiven()
             throws IOException, InterruptedException {
