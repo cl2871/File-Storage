@@ -14,6 +14,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -39,7 +42,8 @@ public class BucketStorageControllerTest {
     private static String bucketName;
     private static String fileName;
     private static MediaType mediaType;
-    private static byte[] content;
+    private static byte[] contentBytes;
+    private static InputStream inputStream;
 
     // Other classes
     private static BucketStorageDTO bucketStorageDTO;
@@ -52,10 +56,11 @@ public class BucketStorageControllerTest {
         fileName = "example.txt";
         bucketName = "my-bucket";
         mediaType = MediaType.TEXT_PLAIN;
-        content = "Coffee ipsum".getBytes();
 
-        bucketStorageDTO = new BucketStorageDTO(fileName, MediaType.TEXT_PLAIN_VALUE, content);
-        requestPart = new MockPart("file", fileName, content);
+        contentBytes = "Coffee ipsum".getBytes();
+        requestPart = new MockPart("file", fileName, contentBytes);
+        inputStream = new ByteArrayInputStream(contentBytes);
+        bucketStorageDTO = new BucketStorageDTO(fileName, MediaType.TEXT_PLAIN_VALUE, inputStream);
     }
 
     @Test
