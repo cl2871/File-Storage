@@ -1,10 +1,12 @@
 package com.experimentation.filestorage.bucket;
 
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,9 +36,6 @@ public class BucketStorageControllerTest {
     @MockBean
     private BucketStorageService bucketStorageService;
 
-    @MockBean
-    private MultipartFile multipartFile;
-
     // Classes to have initialized values
     // Final classes
     private static String baseUrl;
@@ -44,6 +44,7 @@ public class BucketStorageControllerTest {
     private static MediaType mediaType;
     private static byte[] contentBytes;
     private static InputStream inputStream;
+    private static UUID uuid;
 
     // Other classes
     private static BucketStorageDTO bucketStorageDTO;
@@ -56,6 +57,7 @@ public class BucketStorageControllerTest {
         fileName = "example.txt";
         bucketName = "my-bucket";
         mediaType = MediaType.TEXT_PLAIN;
+        uuid = UUID.randomUUID();
 
         contentBytes = "Coffee ipsum".getBytes();
         requestPart = new MockPart("file", fileName, contentBytes);
@@ -63,23 +65,30 @@ public class BucketStorageControllerTest {
         bucketStorageDTO = new BucketStorageDTO(fileName, MediaType.TEXT_PLAIN_VALUE, inputStream);
     }
 
+    @After
+    public void tearDown() {
+        Mockito.reset(bucketStorageService);
+    }
+
     @Test
     public void getFile_shouldReturnFile_whenCalledNormally() throws Exception {
 
         // Arrange
         Mockito.doReturn(bucketStorageDTO)
-                .when(bucketStorageService).doGetFile(bucketName, fileName, BucketStorageType.AWS_S3);
+                .when(bucketStorageService).doGetFile(uuid);
 
         // Act and Assert
         mockMvc
                 .perform(
                         get(
-                                buildUrlForGetOrDeleteRequest(BucketStorageTypeConstants.AWS_S3, bucketName, fileName)
+                                buildUrlForGetOrDeleteRequest(uuid)
                         )
                 ).andExpect(
                         status().isOk()
                 ).andExpect(
                         content().contentType(mediaType));
+
+        verifyDoGetFileIsCalledOnce();
     }
 
     @Test
@@ -87,16 +96,18 @@ public class BucketStorageControllerTest {
 
         // Arrange
         Mockito.doThrow(BucketStorageServiceException.class)
-                .when(bucketStorageService).doGetFile(bucketName, fileName, BucketStorageType.AWS_S3);
+                .when(bucketStorageService).doGetFile(uuid);
 
         // Act and Assert
         mockMvc
                 .perform(
                     get(
-                            buildUrlForGetOrDeleteRequest(BucketStorageTypeConstants.AWS_S3, bucketName, fileName)
+                            buildUrlForGetOrDeleteRequest(uuid)
                     )
                 ).andExpect(
                         status().is5xxServerError());
+
+        verifyDoGetFileIsCalledOnce();
     }
 
     @Test
@@ -105,17 +116,18 @@ public class BucketStorageControllerTest {
         // Arrange
         Mockito.doNothing()
                 .when(bucketStorageService)
-                .doUploadMultipartFile(
-                        eq(bucketName), eq(fileName), any(MultipartFile.class), eq(BucketStorageType.AWS_S3));
+                .doUploadMultipartFile(eq(bucketName), eq(fileName), any(MultipartFile.class));
 
         // Act and Assert
         mockMvc
                 .perform(
                         multipart(
-                                buildUrlForPostRequest(BucketStorageTypeConstants.AWS_S3, bucketName)
+                                buildUrlForPostRequest(bucketName)
                         ).part(requestPart)
                 ).andExpect(
                         status().isOk());
+
+        verifyDoUploadMultipartFileIsCalledOnce();
     }
 
     @Test
@@ -124,17 +136,18 @@ public class BucketStorageControllerTest {
         // Arrange
         Mockito.doThrow(BucketStorageServiceException.class)
                 .when(bucketStorageService)
-                .doUploadMultipartFile(
-                        eq(bucketName), eq(fileName), any(MultipartFile.class), eq(BucketStorageType.AWS_S3));
+                .doUploadMultipartFile(eq(bucketName), eq(fileName), any(MultipartFile.class));
 
         // Act and Assert
         mockMvc
                 .perform(
                         multipart(
-                                buildUrlForPostRequest(BucketStorageTypeConstants.AWS_S3, bucketName)
+                                buildUrlForPostRequest(bucketName)
                         ).part(requestPart)
                 ).andExpect(
                         status().is5xxServerError());
+
+        verifyDoUploadMultipartFileIsCalledOnce();
     }
 
     @Test
@@ -142,16 +155,18 @@ public class BucketStorageControllerTest {
         // Arrange
         Mockito.doNothing()
                 .when(bucketStorageService)
-                .doDeleteFile(bucketName, fileName, BucketStorageType.AWS_S3);
+                .doDeleteFile(uuid);
 
         // Act and Assert
         mockMvc
                 .perform(
                         delete(
-                                buildUrlForGetOrDeleteRequest(BucketStorageTypeConstants.AWS_S3, bucketName, fileName)
+                                buildUrlForGetOrDeleteRequest(uuid)
                         )
                 ).andExpect(
                         status().isOk());
+
+        verifyDoDeleteFileIsCalledOnce();
     }
 
     @Test
@@ -160,23 +175,40 @@ public class BucketStorageControllerTest {
         // Arrange
         Mockito.doThrow(BucketStorageServiceException.class)
                 .when(bucketStorageService)
-                .doDeleteFile(bucketName, fileName, BucketStorageType.AWS_S3);
+                .doDeleteFile(uuid);
 
         // Act and Assert
         mockMvc
                 .perform(
                         delete(
-                                buildUrlForGetOrDeleteRequest(BucketStorageTypeConstants.AWS_S3, bucketName, fileName)
+                                buildUrlForGetOrDeleteRequest(uuid)
                         )
                 ).andExpect(
                         status().is5xxServerError());
+
+        verifyDoDeleteFileIsCalledOnce();
     }
 
-    private String buildUrlForGetOrDeleteRequest(String storageProvider, String storageLocation, String fileName) {
-        return baseUrl + "/storageProvider/" + storageProvider + "/storageLocation/" + storageLocation + "/fileName/" + fileName;
+    private void verifyDoGetFileIsCalledOnce() {
+        Mockito.verify(bucketStorageService, VerificationModeFactory.times(1))
+                .doGetFile(uuid);
     }
 
-    private String buildUrlForPostRequest(String storageProvider, String storageLocation) {
-        return baseUrl + "/storageProvider/" + storageProvider + "/storageLocation/" + storageLocation;
+    private void verifyDoUploadMultipartFileIsCalledOnce() {
+        Mockito.verify(bucketStorageService, VerificationModeFactory.times(1))
+                .doUploadMultipartFile(eq(bucketName), eq(fileName), any(MultipartFile.class));
+    }
+
+    private void verifyDoDeleteFileIsCalledOnce() {
+        Mockito.verify(bucketStorageService, VerificationModeFactory.times(1))
+                .doDeleteFile(uuid);
+    }
+
+    private String buildUrlForGetOrDeleteRequest(UUID uuid) {
+        return baseUrl + "/" + uuid;
+    }
+
+    private String buildUrlForPostRequest(String bucketName) {
+        return baseUrl + "/" + bucketName;
     }
 }

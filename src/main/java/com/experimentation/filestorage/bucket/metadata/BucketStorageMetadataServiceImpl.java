@@ -1,5 +1,6 @@
 package com.experimentation.filestorage.bucket.metadata;
 
+import com.experimentation.filestorage.bucket.BucketStorageType;
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,5 +75,16 @@ public class BucketStorageMetadataServiceImpl implements BucketStorageMetadataSe
         bucketStorageMetadataRepository.findById(uuid).ifPresent(bucketStorageMetadata ->
             bucketStorageMetadataRepository.delete(bucketStorageMetadata)
         );
+    }
+
+    @Override
+    public BucketStorageMetadata createBucketStorageMetadata(BucketStorageType bucketStorageType,
+                                                                String bucketName,
+                                                                String fileName) {
+        BucketStorageMetadata bucketStorageMetadata = new BucketStorageMetadata();
+        bucketStorageMetadata.setStorageProvider(bucketStorageType.name());
+        bucketStorageMetadata.setBucketName(bucketName);
+        bucketStorageMetadata.setKeyName(fileName);
+        return bucketStorageMetadata;
     }
 }

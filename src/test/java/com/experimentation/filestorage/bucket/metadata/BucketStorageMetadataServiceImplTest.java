@@ -1,5 +1,6 @@
 package com.experimentation.filestorage.bucket.metadata;
 
+import com.experimentation.filestorage.bucket.BucketStorageType;
 import com.experimentation.filestorage.bucket.BucketStorageTypeConstants;
 import com.experimentation.filestorage.bucket.util.BucketStorageServiceException;
 import org.junit.After;
@@ -36,6 +37,9 @@ public class BucketStorageMetadataServiceImplTest {
     private static String bucketName;
     private static String keyName;
 
+    // Other classes to be initialized
+    private static BucketStorageType bucketStorageType;
+
     @BeforeClass
     public static void setUp() {
 
@@ -54,6 +58,8 @@ public class BucketStorageMetadataServiceImplTest {
         storageProvider = BucketStorageTypeConstants.AWS_S3;
         bucketName = "example-bucket";
         keyName = "example-file";
+
+        bucketStorageType = BucketStorageType.AWS_S3;
     }
 
     @After
@@ -156,7 +162,8 @@ public class BucketStorageMetadataServiceImplTest {
     }
 
     @Test
-    public void deleteBucketStorageMetadata() {
+    public void deleteBucketStorageMetadata_shouldDeleteBucketStorageMetadata_whenCalledRegularly() {
+
         // Arrange
         Mockito.doReturn(bucketStorageMetadataOptional)
                 .when(bucketStorageMetadataRepository).findById(uuid);
@@ -169,6 +176,19 @@ public class BucketStorageMetadataServiceImplTest {
         // Assert
         verifyFindByIdIsCalledOnce();
         verifyDeleteIsCalledOnce();
+    }
+
+    @Test
+    public void createBucketStorageMetadata() {
+
+        // Act
+        BucketStorageMetadata bucketStorageMetadata = bucketStorageMetadataService
+                .createBucketStorageMetadata(bucketStorageType, bucketName, keyName);
+
+        // Assert
+        assertThat(bucketStorageMetadata.getStorageProvider()).isEqualTo(storageProvider);
+        assertThat(bucketStorageMetadata.getBucketName()).isEqualTo(bucketName);
+        assertThat(bucketStorageMetadata.getKeyName()).isEqualTo(keyName);
     }
 
     private void verifyFindByIdIsCalledOnce() {

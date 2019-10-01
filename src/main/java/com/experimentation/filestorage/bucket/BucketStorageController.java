@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/fileStorage")
@@ -26,15 +27,12 @@ public class BucketStorageController {
         this.bucketStorageService = bucketStorageService;
     }
 
-    @GetMapping("storageProvider/{storageProvider}/storageLocation/{storageLocation}/fileName/{fileName}")
-    public ResponseEntity<?> getFile(@PathVariable("storageProvider") String storageProvider,
-                                     @PathVariable("storageLocation") String bucketName,
-                                     @PathVariable String fileName) {
+    @GetMapping("{fileId}")
+    public ResponseEntity<?> getFile(@PathVariable("fileId") UUID uuid) {
         ResponseEntity responseEntity;
 
         try {
-            BucketStorageType bucketStorageType = BucketStorageType.valueOf(storageProvider);
-            BucketStorageDTO bucketStorageDTO = bucketStorageService.doGetFile(bucketName, fileName, bucketStorageType);
+            BucketStorageDTO bucketStorageDTO = bucketStorageService.doGetFile(uuid);
             InputStream inputStream = bucketStorageDTO.getData();
             InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
 
@@ -52,25 +50,17 @@ public class BucketStorageController {
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
         }
 
-        // BucketStorageType could not be identified from the storageProvider value
-        catch (IllegalArgumentException e) {
-            logger.error(e.getMessage());
-            responseEntity = ResponseEntity.status(500).body("Invalid storage provider identifier provided.");
-        }
-
         return responseEntity;
     }
 
-    @PostMapping("storageProvider/{storageProvider}/storageLocation/{storageLocation}")
-    public ResponseEntity<?> uploadFile(@PathVariable("storageProvider") String storageProvider,
-                                        @PathVariable("storageLocation") String bucketName,
+    @PostMapping("{bucketName}")
+    public ResponseEntity<?> uploadFile(@PathVariable("bucketName") String bucketName,
                                         @RequestPart(value = "file") MultipartFile multipartFile) {
 
         ResponseEntity responseEntity;
         try {
             String fileName = multipartFile.getOriginalFilename();
-            BucketStorageType bucketStorageType = BucketStorageType.valueOf(storageProvider);
-            bucketStorageService.doUploadMultipartFile(bucketName, fileName, multipartFile, bucketStorageType);
+            bucketStorageService.doUploadMultipartFile(bucketName, fileName, multipartFile);
             responseEntity = ResponseEntity.ok().build();
         }
 
@@ -80,25 +70,16 @@ public class BucketStorageController {
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
         }
 
-        // BucketStorageType could not be identified from the storageProvider value
-        catch (IllegalArgumentException e) {
-            logger.error(e.getMessage());
-            responseEntity = ResponseEntity.status(500).body("Invalid storage provider identifier provided.");
-        }
-
         return responseEntity;
     }
 
-    @DeleteMapping("storageProvider/{storageProvider}/storageLocation/{storageLocation}/fileName/{fileName}")
-    public ResponseEntity<?> deleteFile(@PathVariable("storageProvider") String storageProvider,
-                                        @PathVariable("storageLocation") String bucketName,
-                                        @PathVariable String fileName) {
+    @DeleteMapping("{fileId}")
+    public ResponseEntity<?> deleteFile(@PathVariable("fileId") UUID uuid) {
 
         ResponseEntity responseEntity;
 
         try {
-            BucketStorageType bucketStorageType = BucketStorageType.valueOf(storageProvider);
-            bucketStorageService.doDeleteFile(bucketName, fileName, bucketStorageType);
+            bucketStorageService.doDeleteFile(uuid);
             responseEntity = ResponseEntity.ok().build();
         }
 
@@ -106,12 +87,6 @@ public class BucketStorageController {
         catch (BucketStorageServiceException e) {
             logger.error(e.getMessage());
             responseEntity = ResponseEntity.status(500).body(e.getMessage());
-        }
-
-        // BucketStorageType could not be identified from the storageProvider value
-        catch (IllegalArgumentException e) {
-            logger.error(e.getMessage());
-            responseEntity = ResponseEntity.status(500).body("Invalid storage provider identifier provided.");
         }
 
         return responseEntity;
