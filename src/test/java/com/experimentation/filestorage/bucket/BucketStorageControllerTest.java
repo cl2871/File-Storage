@@ -114,7 +114,7 @@ public class BucketStorageControllerTest {
     public void uploadFile_shouldReturnOkStatus_whenCalledNormally() throws Exception {
 
         // Arrange
-        Mockito.doNothing()
+        Mockito.doReturn(uuid)
                 .when(bucketStorageService)
                 .doUploadMultipartFile(eq(bucketName), eq(fileName), any(MultipartFile.class));
 
@@ -125,7 +125,9 @@ public class BucketStorageControllerTest {
                                 buildUrlForPostRequest(bucketName)
                         ).part(requestPart)
                 ).andExpect(
-                        status().isOk());
+                        status().isOk()
+                ).andExpect(
+                        content().string(uuid.toString()));
 
         verifyDoUploadMultipartFileIsCalledOnce();
     }

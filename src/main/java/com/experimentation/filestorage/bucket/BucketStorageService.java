@@ -42,7 +42,7 @@ public class BucketStorageService {
         return bucketStorage.getFile(bucketStorageMetadata.getBucketName(), bucketStorageMetadata.getKeyName());
     }
 
-    public void doUploadMultipartFile(String bucketName, String fileName, MultipartFile multipartFile)
+    public UUID doUploadMultipartFile(String bucketName, String fileName, MultipartFile multipartFile)
             throws BucketStorageServiceException {
 
         // Choose a provider for handling upload
@@ -57,6 +57,7 @@ public class BucketStorageService {
         BucketStorageMetadata bucketStorageMetadata = bucketStorageMetadataService
                 .createBucketStorageMetadata(bucketStorageType, bucketName, fileName);
         bucketStorageMetadataService.saveBucketStorageMetadata(bucketStorageMetadata);
+        return bucketStorageMetadata.getId();
     }
 
     public void doDeleteFile(UUID uuid) throws BucketStorageServiceException {

@@ -143,11 +143,14 @@ public class BucketStorageServiceTest {
                 .createBucketStorageMetadata(bucketStorageType, bucketName, fileName);
         Mockito.doReturn(bucketStorageMetadata)
                 .when(bucketStorageMetadataService).saveBucketStorageMetadata(bucketStorageMetadata);
+        Mockito.doReturn(uuid)
+                .when(bucketStorageMetadata).getId();
 
         // Act
-        bucketStorageService.doUploadMultipartFile(bucketName, fileName, multipartFile);
+        UUID storageId = bucketStorageService.doUploadMultipartFile(bucketName, fileName, multipartFile);
 
         // Assert
+        assertThat(storageId).isEqualTo(uuid);
         verifySaveBucketStorageMetadataIsCalledOnce();
         verifyUploadMultipartFileIsCalledOnce();
     }

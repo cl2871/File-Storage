@@ -60,8 +60,8 @@ public class BucketStorageController {
         ResponseEntity responseEntity;
         try {
             String fileName = multipartFile.getOriginalFilename();
-            bucketStorageService.doUploadMultipartFile(bucketName, fileName, multipartFile);
-            responseEntity = ResponseEntity.ok().build();
+            UUID uuid = bucketStorageService.doUploadMultipartFile(bucketName, fileName, multipartFile);
+            responseEntity = ResponseEntity.ok().body(uuid.toString());
         }
 
         // Unable to upload file
