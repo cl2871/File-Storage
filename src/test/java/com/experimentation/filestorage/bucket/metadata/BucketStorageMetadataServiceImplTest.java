@@ -79,7 +79,7 @@ public class BucketStorageMetadataServiceImplTest {
         Iterable<BucketStorageMetadata> metadataIterable = bucketStorageMetadataService.getAllBucketStorageMetadata();
 
         // Assert
-        assertThat(bucketStorageMetadataList).isEqualTo(metadataIterable);
+        assertThat(metadataIterable).isEqualTo(bucketStorageMetadataList);
     }
 
     @Test
@@ -91,10 +91,10 @@ public class BucketStorageMetadataServiceImplTest {
         // bucketStorageMetadataOptional will return the bucketStorageMetadata mock on orElseThrow()
 
         // Act
-        BucketStorageMetadata bucketStorageMetadata = bucketStorageMetadataService.getBucketStorageMetadata(uuid);
+        BucketStorageMetadata returnedBucketStorageMetadata = bucketStorageMetadataService.getBucketStorageMetadata(uuid);
 
         // Assert
-        assertThat(bucketStorageMetadata).isEqualTo(bucketStorageMetadata);
+        assertThat(returnedBucketStorageMetadata).isEqualTo(bucketStorageMetadata);
         verifyFindByIdIsCalledOnce();
     }
 
@@ -125,7 +125,7 @@ public class BucketStorageMetadataServiceImplTest {
                 .saveBucketStorageMetadata(bucketStorageMetadata);
 
         // Assert
-        assertThat(bucketStorageMetadata).isEqualTo(savedBucketStorageMetadata);
+        assertThat(savedBucketStorageMetadata).isEqualTo(bucketStorageMetadata);
         verifySaveIsCalledOnce();
     }
 
@@ -154,9 +154,9 @@ public class BucketStorageMetadataServiceImplTest {
 
         // Assert
         // savedBucketStorageMetadata should have the new values
-        assertThat(storageProvider).isEqualTo(savedBucketStorageMetadata.getStorageProvider());
-        assertThat(bucketName).isEqualTo(savedBucketStorageMetadata.getBucketName());
-        assertThat(keyName).isEqualTo(savedBucketStorageMetadata.getKeyName());
+        assertThat(savedBucketStorageMetadata.getStorageProvider()).isEqualTo(storageProvider);
+        assertThat(savedBucketStorageMetadata.getBucketName()).isEqualTo(bucketName);
+        assertThat(savedBucketStorageMetadata.getKeyName()).isEqualTo(keyName);
         verifyFindByIdIsCalledOnce();
         verifySaveIsCalledOnce();
     }
